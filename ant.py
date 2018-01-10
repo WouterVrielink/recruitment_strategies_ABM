@@ -6,19 +6,20 @@ class Ant(Agent):
     """An agent with fixed initial wealth."""
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony)
-        self.location = self.model.location
+        self.pos = self.model.location
         self.environment = self.model.environment
         self.pheromone_id = self.model.pheromone_id
 
     def step(self):
-        locations, probabilities = self.environment.get_pheromones(self.location, pheromone_id)
+        positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
-        self.location = self.move(locations, probabilities)
+        self.pos = self.move(positions, pheromone_levels)
 
-        self.environment.place_pheromones(self.location)
+        self.environment.place_pheromones(self.pos)
 
-    def move(locations, probabilities):
-        move_to = np.random.choice(env_pheromones, p=probabilities)
+    def move(self, positions, pheromone_levels):
+        probabilities = pheromone_levels/sum(pheromone_levels)
+        move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
         self.environment.move_agent(self, move_to)
 
