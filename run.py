@@ -1,7 +1,7 @@
-from colony import AntColony
+from colony import Colony
 from environment import Environment
 
-colony1 = AntColony(100)
+colony1 = Colony(100)
 
 steps = 1000
 
