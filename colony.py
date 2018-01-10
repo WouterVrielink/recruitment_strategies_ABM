@@ -1,4 +1,4 @@
-from mesa import Agent
+from mesa import Agent, Model
 from mesa.time import RandomActivation
 
 from ant import Ant
@@ -19,7 +19,7 @@ class Colony(Model):
         '''Advance the model by one step.'''
         self.ant_list.step()
 
-    def add_ants(N):
+    def add_ants(self, N):
         for i in range(N):
             a = Ant(i, self)
             self.ant_list.add(a)
