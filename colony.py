@@ -6,7 +6,7 @@ from ant import Ant
 class Colony(Model):
     """A model with some number of agents."""
     def __init__(self, environment, pheromone_id, location, N):
-        self.environment = Environment
+        self.environment = environment
         self.pheromone_id = pheromone_id
         self.location = location
         self.num_agents = N
