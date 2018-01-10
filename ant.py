@@ -10,6 +10,8 @@ class Ant(Agent):
         self.environment = self.model.environment
         self.pheromone_id = self.model.pheromone_id
 
+        self.environment.grid.place_agent(self, self.pos)
+
     def step(self):
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 

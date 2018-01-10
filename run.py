@@ -7,5 +7,5 @@ steps = 1000
 for _ in range(steps):
     env.step()
 
-for agent in Environment.ant_list:
-    print(agent.location)
+for agent in env.colonies[0].ant_list.agents:
+    print(agent.pos)
