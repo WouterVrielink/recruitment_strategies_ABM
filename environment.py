@@ -35,8 +35,8 @@ class Environment(Model):
     def get_pheromones(self, loc, id):
         indices = self.grid.get_neighborhood(loc, self.moore)
         pheromones = [self.pheromones[x, y] for x, y in indices]
-        tuples = [(loc, p) for loc, p in zip(indices, pheromones)]
-        return tuples
+        # tuples = [(loc, p) for loc, p in zip(indices, pheromones)]
+        return indices, pheromones
 
     def update_pheromones(self):
         pass
