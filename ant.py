@@ -3,7 +3,8 @@ import numpy as np
 from mesa import Agent
 
 class Ant(Agent):
-    """An agent with fixed initial wealth."""
+    """An agent with fixed legs."""
+
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony)
         self.pos = self.model.location
