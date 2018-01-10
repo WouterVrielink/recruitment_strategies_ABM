@@ -23,5 +23,3 @@ class Colony(Model):
         for i in range(N):
             a = Ant(i, self)
             self.ant_list.add(a)
-
-    
