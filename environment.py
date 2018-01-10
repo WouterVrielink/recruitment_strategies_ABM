@@ -21,6 +21,9 @@ class Environment(Model):
             col.step()
         self.update_pheromones()
 
+    def move_agent(self, ant, loc):
+        self.grid.move_agent(ant, loc)
+
     def add_food(self):
         x = np.random.randint(0, self.width - 1, 1)
         y = np.random.randint(0, self.height - 1, 1)
