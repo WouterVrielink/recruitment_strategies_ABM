@@ -10,12 +10,14 @@ class Ant(Agent):
         self.pos = self.model.location
         self.environment = self.model.environment
         self.pheromone_id = self.model.pheromone_id
+        self.last_pos = (-1,-1)
 
         self.environment.grid.place_agent(self, self.pos)
 
     def step(self):
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
+        self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
 
         self.environment.place_pheromones(self.pos)
