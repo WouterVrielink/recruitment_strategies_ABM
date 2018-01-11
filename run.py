@@ -5,9 +5,9 @@ from matplotlib import animation
 import matplotlib.patches as patches
 
 
-width = 10
-height = 10
-steps = 1000
+width = 30
+height = 30
+steps = 20000
 ant_size = 0.4
 
 
@@ -35,7 +35,7 @@ def store_state(i, colony_positions, food_positions, ant_positions):
 def init_figure():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]), interpolation='none',
+    im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]), interpolation='None',
                    cmap="Purples")
 
     colony_patches, food_patches, ant_patches = [], [], []
@@ -72,7 +72,7 @@ def animate(i):
     return im
 
 
-env = Environment(width=width, height=height, n_colonies=1, n_ants=10, decay=0.99)
+env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.99, sigma=0.2, moore=True)
 
 pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]
@@ -89,4 +89,6 @@ for i in range(1, steps + 1):
 
 fig, ax, im, colony_patches, food_patches, ant_patches = init_figure()
 ani = animation.FuncAnimation(fig, animate, steps, interval=1)
+plt.figure()
+plt.plot(env.path_lengths)
 plt.show()

@@ -4,16 +4,17 @@ from colony import Colony
 from food import Food
 import numpy as np
 from scipy import signal
+from scipy.ndimage import gaussian_filter
 
 
 class Environment(Model):
-    def __init__(self, width, height, n_colonies, n_ants, decay=0.9, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, decay=0.2, sigma=0.1, moore=False):
         super().__init__()
         self.width = width
         self.height = height
         self.grid = MultiGrid(width, height, False)
         self.colonies = [Colony(self, i, (1, 1), n_ants) for i in range(n_colonies)]
-        self.pheromones = np.zeros((width, height))
+        self.pheromones = np.zeros((width, height), dtype=np.float)
         self.moore = moore
         self.pheromone_level = 1
         self.food = Food(self)
@@ -21,8 +22,10 @@ class Environment(Model):
         self.diff_kernel = np.array(
             [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 4, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])
         self.diff_kernel = self.diff_kernel / np.sum(self.diff_kernel) * decay
-
+        self.sigma = sigma
+        self.decay = decay
         self.pheromone_updates = []
+        self.path_lengths = []
 
     def step(self):
         for col in self.colonies:
@@ -48,11 +51,15 @@ class Environment(Model):
     def update_pheromones(self):
         for (loc, level) in self.pheromone_updates:
             # self.pheromones[loc] += level
-            self.pheromones[loc] = 1
+            self.pheromones[loc] += 1
 
         self.pheromone_updates = []
 
-        pheromones = signal.convolve2d(self.pheromones, self.diff_kernel, mode='same')
-        self.pheromones = pheromones[0:self.width, 0:self.height]
+        # convolution by convolve 2d, uses self.diff_kernel
+        # self.pheromones = signal.convolve2d(self.pheromones, self.diff_kernel, mode='same')
 
-        self.pheromones = np.maximum(0.1, self.pheromones)
+        # gaussian convolution using self.sigma
+        self.pheromones = gaussian_filter(self.pheromones, self.sigma)*self.decay
+
+
+        # self.pheromones = np.maximum(0.01, self.pheromones)
