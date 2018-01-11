@@ -17,7 +17,7 @@ class Environment(Model):
         self.pheromones = np.zeros((width, height), dtype=np.float)
         self.moore = moore
         self.pheromone_level = 1
-        self.food = Food(self)
+        self.food = FoodGrid(self)
         self.food.add_food()
         self.diff_kernel = np.array(
             [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 4, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])
