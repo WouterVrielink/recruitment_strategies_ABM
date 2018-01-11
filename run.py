@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
 import matplotlib.patches as patches
+import itertools
 
 width = 20
 height = 20
@@ -20,8 +21,10 @@ def store_state(i, colony_positions, food_positions, ant_positions, ant_foods):
 
     # append the positions of the colonies
     for j, colony in enumerate(env.colonies):
-        # colony_positions[i].append(np.abs(list(map(operator.sub, [0, height], env.colonies[0].pos))))
-        colony_positions[i].append(grid_to_array(colony.pos, width, height))
+        for x, y in itertools.product(np.arange(-colony.radius, colony.radius + 1), np.arange(-colony.radius, colony.radius + 1)):
+            pos = np.add(colony.pos, (x, y))
+            if colony.on_colony(pos):
+                colony_positions[i].append(grid_to_array(pos, width, height))
 
         # append the positions of the ants
         for k, agent in enumerate(colony.ant_list.agents):
@@ -71,12 +74,9 @@ def animate(i):
         ant_patch.set_xy(ant_pos)
         if ant_foods[i][j]:
             ant_patch.set_facecolor('g')
-            ant_patch.set_edgecolor('g')
             ant_patch.set_fill(True)
         else:
-            ant_patch.set_facecolor('k')
-            ant_patch.set_edgecolor('k')
-            ant_patch.set_fill(False)
+            ant_patch.set_facecolor('w')
     plt.title('iteration: ' + str(i))
     fig.canvas.draw()
     return im
