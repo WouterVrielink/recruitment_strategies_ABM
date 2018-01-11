@@ -23,6 +23,8 @@ class Ant(Agent):
         self.pos = self.move(positions, pheromone_levels)
 
         if [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist():
+            if not self.carry_food:
+                self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False

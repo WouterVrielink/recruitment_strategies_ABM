@@ -15,7 +15,9 @@ class Food:
 
         :return:
         """
-        pass
+        if np.count_nonzero(self.grid) == 0:
+            self.add_food()
+
 
     def add_food(self, xy=None):
         """
@@ -27,4 +29,4 @@ class Food:
             x = np.random.randint(0, self.width - 1, 1)
             y = np.random.randint(0, self.height - 1, 1)
             xy = (x, y)
-        self.grid[xy] += 5
+        self.grid[xy] += 50
