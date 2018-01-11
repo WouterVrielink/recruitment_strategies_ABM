@@ -38,6 +38,14 @@ class Ant(Agent):
         if not self.carry_food:
             self.history.append(self.pos)
 
+    @property
+    def on_food(self):
+        """
+        checks whether the ant is on top of a food source
+        :return: True if on food, False otherwise
+        """
+        return [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist()
+
     def move(self, positions, pheromone_levels):
         if self.carry_food:
             move_to = self.history.pop()
