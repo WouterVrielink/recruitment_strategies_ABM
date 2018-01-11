@@ -2,6 +2,7 @@ import numpy as np
 
 from mesa import Agent
 
+
 class Ant(Agent):
     """An agent with fixed legs."""
 
@@ -11,7 +12,7 @@ class Ant(Agent):
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
-        self.last_pos = (-1,-1)
+        self.last_pos = (-1, -1)
         self.history = [colony.location]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
@@ -26,6 +27,7 @@ class Ant(Agent):
             self.environment.place_pheromones(self.pos)
         if [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist():
             self.carry_food = True
+            print(self.history)
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False
             self.history = []
@@ -33,10 +35,10 @@ class Ant(Agent):
         if not self.carry_food:
             self.history.append(self.pos)
 
-
     def move(self, positions, pheromone_levels):
         if self.carry_food:
             move_to = self.history.pop()
+            print(move_to)
         else:
             norm = sum(pheromone_levels)
             l = len(pheromone_levels)

@@ -5,8 +5,8 @@ from matplotlib import animation
 import matplotlib.patches as patches
 
 
-width = 30
-height = 30
+width = 10
+height = 10
 steps = 1000
 ant_size = 0.2
 
@@ -71,7 +71,7 @@ def animate(i):
     return im
 
 
-env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.95)
+env = Environment(width=width, height=height, n_colonies=1, n_ants=10, decay=0.99)
 
 pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]
