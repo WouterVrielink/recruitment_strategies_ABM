@@ -22,13 +22,14 @@ class Ant(Agent):
         self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
 
-        if self.carry_food:
-            self.environment.place_pheromones(self.pos)
         if [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist():
             self.carry_food = True
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False
             self.history = []
+
+        if self.carry_food:
+            self.environment.place_pheromones(self.pos)
 
         if not self.carry_food:
             self.history.append(self.pos)
