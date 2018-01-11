@@ -74,12 +74,9 @@ def animate(i):
         ant_patch.set_xy(ant_pos)
         if ant_foods[i][j]:
             ant_patch.set_facecolor('g')
-            ant_patch.set_edgecolor('g')
             ant_patch.set_fill(True)
         else:
-            ant_patch.set_facecolor('k')
-            ant_patch.set_edgecolor('k')
-            ant_patch.set_fill(False)
+            ant_patch.set_facecolor('w')
     plt.title('iteration: ' + str(i))
     fig.canvas.draw()
     return im
