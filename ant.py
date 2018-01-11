@@ -32,8 +32,13 @@ class Ant(Agent):
             # pick up food
             if not self.carry_food:
                 self.environment.food.grid[self.pos] -= 1
-                self.carry_food = True
-            self.environment.path_lengths.append(len(self.history))
+            self.carry_food = True
+            self.environment.path_lengths.append(len(self.history)+1)
+
+        # check if the ant is on its own colony
+        if self.on_colony:
+            self.carry_food = False
+            self.history = []
 
         # drop pheromones if carrying food
         if self.carry_food:

@@ -5,6 +5,7 @@ from food import FoodGrid
 import numpy as np
 import random
 from scipy.ndimage import gaussian_filter
+from scipy.spatial import distance
 
 
 class Environment(Model):
@@ -37,6 +38,7 @@ class Environment(Model):
         self.pheromone_updates = []
         self.path_lengths = []
         self.min_path_lengths = []
+        self.min_distance = distance.cityblock(self.colonies[0].location, self.food.get_food_pos())
 
     def step(self):
         """

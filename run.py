@@ -5,8 +5,8 @@ from matplotlib import animation
 import matplotlib.patches as patches
 import itertools
 
-width = 20
-height = 20
+width = 30
+height = 30
 steps = 2000
 ant_size = 0.4
 
@@ -41,7 +41,7 @@ def init_figure():
     ax = fig.add_subplot(111)
     im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]),
                    interpolation='None',
-                   cmap="Purples")
+                   cmap="terrain_r")
 
     colony_patches, food_patches, ant_patches = [], [], []
 
@@ -82,7 +82,7 @@ def animate(i):
     return im
 
 
-env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.99, sigma=0.2, moore=True)
+env = Environment(width=width, height=height, n_colonies=1, n_ants=300, decay=0.9, sigma=0, moore=False)
 
 pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]
@@ -100,7 +100,8 @@ for i in range(1, steps + 1):
 fig, ax, im, colony_patches, food_patches, ant_patches = init_figure()
 ani = animation.FuncAnimation(fig, animate, steps, interval=1)
 plt.figure()
-plt.plot(env.min_path_lengths)
+plt.plot(env.min_path_lengths, 'x-')
 plt.ylim(ymin=0)
+plt.axhline(env.min_distance, c='r')
 plt.show()
 
