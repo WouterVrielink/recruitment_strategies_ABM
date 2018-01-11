@@ -2,6 +2,7 @@ import numpy as np
 
 from mesa import Agent
 
+
 class Ant(Agent):
     """An agent with fixed legs."""
 
@@ -11,7 +12,7 @@ class Ant(Agent):
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
-        self.last_pos = (-1,-1)
+        self.last_pos = (-1, -1)
         self.history = [colony.location]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
@@ -26,6 +27,7 @@ class Ant(Agent):
             if not self.carry_food:
                 self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
+            self.environment.path_lengths.append(len(self.history))
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False
             self.history = []
@@ -48,13 +50,8 @@ class Ant(Agent):
         if self.carry_food:
             move_to = self.history.pop()
         else:
-            norm = sum(pheromone_levels)
-            l = len(pheromone_levels)
-            if norm > 0:
-                probabilities = pheromone_levels / sum(pheromone_levels)
-            else:
-                probabilities = np.ones(l) / l
-
+            pheromone_levels = np.array(pheromone_levels) + 0.1
+            probabilities = pheromone_levels / sum(pheromone_levels)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
         self.environment.move_agent(self, move_to)
