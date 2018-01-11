@@ -35,7 +35,7 @@ def init_figure(pheromones, colony_positions, food_positions, ant_positions, ant
     ax = fig.add_subplot(111)
     im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]),
                    interpolation='None',
-                   cmap="Purples")
+                   cmap="terrain_r")
 
     colony_patches, food_patches, ant_patches = [], [], []
 
@@ -54,7 +54,6 @@ def init_figure(pheromones, colony_positions, food_positions, ant_positions, ant
         ant_patches.append(ant)
 
     return fig, ax, im, colony_patches, food_patches, ant_patches
-
 
 def compute_then_plot(env, steps):
     pheromones = []
@@ -159,5 +158,5 @@ if __name__ == '__main__':
 
     env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.99, sigma=0.2, moore=True)
 
-    compute_then_plot(env, steps)
-    # plot_continuous(env, steps=steps)
+    # compute_then_plot(env, steps)
+    plot_continuous(env, steps=steps)
