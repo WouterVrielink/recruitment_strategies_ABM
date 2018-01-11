@@ -1,20 +1,24 @@
 from mesa import Model
 from mesa.space import MultiGrid
 from colony import Colony
+from scipy import signal
 import numpy as np
 
 
 class Environment(Model):
-    def __init__(self, width, height, n_colonies, n_ants, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, decay=0.9, moore=False):
         super().__init__()
         self.width = width
         self.height = height
         self.grid = MultiGrid(width, height, False)
-        self.colonies = [Colony(self, i, (1,1), n_ants) for i in range(n_colonies)]
+        self.colonies = [Colony(self, i, (1, 1), n_ants) for i in range(n_colonies)]
         self.pheromones = np.ones((width, height))
         self.moore = moore
         self.pheromone_level = 1
         self.food = []
+        self.diff_kernel = np.array(
+            [[0, 0, 1, 0, 0], [0, 1, 2, 1, 0], [1, 2, 4, 2, 1], [0, 1, 2, 1, 0], [0, 0, 1, 0, 0]])
+        self.diff_kernel = self.diff_kernel / np.sum(self.diff_kernel) * decay
 
     def step(self):
         for col in self.colonies:
@@ -39,4 +43,4 @@ class Environment(Model):
         return indices, pheromones
 
     def update_pheromones(self):
-        pass
+        self.pheromones = signal.convolve2d(self.pheromones, self.diff_kernel)
