@@ -13,7 +13,7 @@ class Environment(Model):
         self.width = width
         self.height = height
         self.grid = MultiGrid(width, height, False)
-        self.colonies = [Colony(self, i, (1, 1), n_ants) for i in range(n_colonies)]
+        self.colonies = [Colony(self, i, (width//2, height//2), n_ants) for i in range(n_colonies)]
         self.pheromones = np.zeros((width, height), dtype=np.float)
         self.moore = moore
         self.pheromone_level = 1

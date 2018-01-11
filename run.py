@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
 import matplotlib.patches as patches
+import itertools
 
-
-width = 30
-height = 30
-steps = 20000
+width = 12
+height = 12
+steps = 500
 ant_size = 0.4
 
 
@@ -21,8 +21,10 @@ def store_state(i, colony_positions, food_positions, ant_positions):
 
     # append the positions of the colonies
     for j, colony in enumerate(env.colonies):
-        # colony_positions[i].append(np.abs(list(map(operator.sub, [0, height], env.colonies[0].pos))))
-        colony_positions[i].append(grid_to_array(colony.pos, width, height))
+        for x, y in itertools.product(np.arange(-colony.radius, colony.radius + 1), np.arange(-colony.radius, colony.radius + 1)):
+            pos = np.add(colony.pos, (x, y))
+            if colony.on_colony(pos):
+                colony_positions[i].append(grid_to_array(pos, width, height))
 
         # append the positions of the ants
         for k, agent in enumerate(colony.ant_list.agents):

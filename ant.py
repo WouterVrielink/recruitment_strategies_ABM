@@ -23,12 +23,12 @@ class Ant(Agent):
         self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
 
-        if [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist():
+        if self.on_food:
             if not self.carry_food:
                 self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
             self.environment.path_lengths.append(len(self.history))
-        if [*self.pos] == [*self.colony.pos]:
+        if self.on_colony:
             self.carry_food = False
             self.history = []
 
@@ -37,6 +37,14 @@ class Ant(Agent):
 
         if not self.carry_food:
             self.history.append(self.pos)
+
+    @property
+    def on_colony(self):
+        """
+        checks whether the ant is on top of its own colony
+        :return: True if on colony, False otherwise
+        """
+        return self.colony.on_colony(self.pos)
 
     @property
     def on_food(self):
