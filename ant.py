@@ -27,7 +27,7 @@ class Ant(Agent):
             if not self.carry_food:
                 self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
-            self.environment.path_lengths.append(len(self.history))
+            self.environment.path_lengths.append(len(self.history)+1)
         if self.on_colony:
             self.carry_food = False
             self.history = []
