@@ -102,5 +102,6 @@ ani = animation.FuncAnimation(fig, animate, steps, interval=1)
 plt.figure()
 plt.plot(env.min_path_lengths)
 plt.ylim(ymin=0)
+plt.axhline(2)
 plt.show()
 
