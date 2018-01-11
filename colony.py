@@ -4,7 +4,7 @@ from mesa import Agent
 import numpy as np
 
 class Colony(Agent):
-    """A model with some number of agents."""
+    """ A Colony which contains a number of ants."""
     def __init__(self, environment, pheromone_id, location, N, radius=1):
         self.environment = environment
         self.pheromone_id = pheromone_id
@@ -21,17 +21,23 @@ class Colony(Agent):
 
     def on_colony(self, pos):
         """
-        checks whether the ant is on top of its own colony
+        Checks whether the pos is on top of its own colony.
         :return: True if on colony, False otherwise
         """
         return np.sum(np.subtract(pos, self.pos) ** 2) ** 0.5 <= self.radius
 
 
     def step(self):
-        '''Advance the model by one step.'''
+        '''
+        Advance each ant in this colony by one time-step.
+        '''
         self.ant_list.step()
 
     def add_ants(self, N):
+        """
+        Adds N ants to this colony.
+        :param N: integer value which specifies the nr of ants to add
+        """
         for i in range(N):
             a = Ant(i, self)
             self.ant_list.add(a)
