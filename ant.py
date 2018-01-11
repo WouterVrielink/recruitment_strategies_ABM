@@ -6,13 +6,15 @@ class Ant(Agent):
     """An agent with fixed legs."""
 
     def __init__(self, unique_id, colony):
-        super().__init__(unique_id, colony)
-        self.pos = self.model.location
-        self.environment = self.model.environment
-        self.pheromone_id = self.model.pheromone_id
+        super().__init__(unique_id, colony.environment)
+        self.pos = colony.location
+        self.environment = colony.environment
+        self.colony = colony
+        self.pheromone_id = colony.pheromone_id
         self.last_pos = (-1,-1)
 
         self.environment.grid.place_agent(self, self.pos)
+        self.carry_food = False
 
     def step(self):
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
@@ -20,7 +22,12 @@ class Ant(Agent):
         self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
 
-        self.environment.place_pheromones(self.pos)
+        if self.carry_food:
+            self.environment.place_pheromones(self.pos)
+        if [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist():
+            self.carry_food = True
+        if [*self.pos] == [*self.colony.pos]:
+            self.carry_food = False
 
     def move(self, positions, pheromone_levels):
         norm = sum(pheromone_levels)
