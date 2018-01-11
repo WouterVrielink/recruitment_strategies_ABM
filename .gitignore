@@ -99,7 +99,5 @@ ENV/
 
 # mypy
 .mypy_cache/
+.idea/*
 
-misc.xml
-modules.xml
-vcs.xml
