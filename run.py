@@ -5,9 +5,9 @@ from matplotlib import animation
 import matplotlib.patches as patches
 
 
-width = 10
-height = 10
-steps = 100
+width = 30
+height = 30
+steps = 300
 ant_size = 0.2
 
 
@@ -71,7 +71,7 @@ def animate(i):
     return im
 
 
-env = Environment(width=width, height=height, n_colonies=1, n_ants=2)
+env = Environment(width=width, height=height, n_colonies=1, n_ants=10, decay=1)
 
 pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]
@@ -87,5 +87,5 @@ for i in range(1, steps + 1):
 
 
 fig, ax, im, colony_patches, food_patches, ant_patches = init_figure()
-ani = animation.FuncAnimation(fig, animate, steps, interval=1000)
+ani = animation.FuncAnimation(fig, animate, steps, interval=10)
 plt.show()

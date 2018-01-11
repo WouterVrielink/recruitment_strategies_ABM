@@ -12,7 +12,7 @@ class Ant(Agent):
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
         self.last_pos = (-1,-1)
-
+        self.history = [colony.location]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
 
@@ -21,6 +21,8 @@ class Ant(Agent):
 
         self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
+        if not self.carry_food:
+            self.history.append(self.pos)
 
         if self.carry_food:
             self.environment.place_pheromones(self.pos)
@@ -30,14 +32,17 @@ class Ant(Agent):
             self.carry_food = False
 
     def move(self, positions, pheromone_levels):
-        norm = sum(pheromone_levels)
-        l = len(pheromone_levels)
-        if norm > 0:
-            probabilities = pheromone_levels / sum(pheromone_levels)
+        if self.carry_food:
+            move_to = self.history.pop()
         else:
-            probabilities = np.ones(l) / l
+            norm = sum(pheromone_levels)
+            l = len(pheromone_levels)
+            if norm > 0:
+                probabilities = pheromone_levels / sum(pheromone_levels)
+            else:
+                probabilities = np.ones(l) / l
 
-        move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+            move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
         self.environment.move_agent(self, move_to)
 
