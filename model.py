@@ -22,6 +22,8 @@ class Environment(Model):
             [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 4, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])
         self.diff_kernel = self.diff_kernel / np.sum(self.diff_kernel) * decay
 
+        self.pheromone_updates = []
+
     def step(self):
         for col in self.colonies:
             col.step()
@@ -35,7 +37,7 @@ class Environment(Model):
         self.food.add_food()
 
     def place_pheromones(self, loc):
-        self.pheromones[loc] += self.pheromone_level
+        self.pheromone_updates.append((loc, self.pheromone_level))
 
     def get_pheromones(self, loc, id):
         indices = self.grid.get_neighborhood(loc, self.moore)
@@ -44,5 +46,13 @@ class Environment(Model):
         return indices, pheromones
 
     def update_pheromones(self):
-        pheromones = signal.convolve2d(self.pheromones, self.diff_kernel,mode='same')
+        for (loc, level) in self.pheromone_updates:
+            # self.pheromones[loc] += level
+            self.pheromones[loc] = 1
+
+        self.pheromone_updates = []
+
+        pheromones = signal.convolve2d(self.pheromones, self.diff_kernel, mode='same')
         self.pheromones = pheromones[0:self.width, 0:self.height]
+
+        self.pheromones = np.maximum(0.1, self.pheromones)
