@@ -21,8 +21,6 @@ class Ant(Agent):
 
         self.last_pos = self.pos
         self.pos = self.move(positions, pheromone_levels)
-        if not self.carry_food:
-            self.history.append(self.pos)
 
         if self.carry_food:
             self.environment.place_pheromones(self.pos)
@@ -30,6 +28,11 @@ class Ant(Agent):
             self.carry_food = True
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False
+            self.history = []
+
+        if not self.carry_food:
+            self.history.append(self.pos)
+
 
     def move(self, positions, pheromone_levels):
         if self.carry_food:
