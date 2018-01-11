@@ -12,7 +12,7 @@ class Environment(Model):
         self.height = height
         self.grid = MultiGrid(width, height, False)
         self.colonies = [Colony(self, i, (1, 1), n_ants) for i in range(n_colonies)]
-        self.pheromones = np.ones((width, height))
+        self.pheromones = np.zeros((width, height))
         self.moore = moore
         self.pheromone_level = 1
         self.food = []
@@ -43,4 +43,5 @@ class Environment(Model):
         return indices, pheromones
 
     def update_pheromones(self):
-        self.pheromones = signal.convolve2d(self.pheromones, self.diff_kernel)
+        pheromones = signal.convolve2d(self.pheromones, self.diff_kernel,mode='same')
+        self.pheromones = pheromones[0:self.width, 0:self.height]

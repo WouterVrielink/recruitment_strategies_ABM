@@ -1,9 +1,8 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation 
+from matplotlib import animation
 import matplotlib.patches as patches
-
 
 width = 10
 height = 10
@@ -31,10 +30,11 @@ def store_state(i, colony_positions, food_positions, ant_positions):
     # append the positions of the food
     # TODO
 
+
 def init_figure():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    im = ax.imshow(np.zeros((width, height)), vmin=1, vmax=np.max(pheromones[-1]))
+    im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]), interpolation='none')
 
     colony_patches, ant_patches = [], []
     for colony_pos in colony_positions[0]:
@@ -78,7 +78,6 @@ for i in range(1, steps + 1):
 
     # store the state for animation
     store_state(i, colony_positions, food_positions, ant_positions)
-
 
 fig, ax, im, colony_patches, ant_patches = init_figure()
 ani = animation.FuncAnimation(fig, animate, steps, interval=1000)
