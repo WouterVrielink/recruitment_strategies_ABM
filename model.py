@@ -26,13 +26,17 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
+        self.min_path_lengths = []
 
     def step(self):
         for col in self.colonies:
             col.step()
         self.update_pheromones()
         self.food.step()
-
+        if len(self.path_lengths) > 0:
+            self.min_path_lengths.append(min(self.path_lengths))
+        else:
+            self.min_path_lengths.append(None)
     def move_agent(self, ant, loc):
         self.grid.move_agent(ant, loc)
 
@@ -59,7 +63,6 @@ class Environment(Model):
         # self.pheromones = signal.convolve2d(self.pheromones, self.diff_kernel, mode='same')
 
         # gaussian convolution using self.sigma
-        self.pheromones = gaussian_filter(self.pheromones, self.sigma)*self.decay
-
+        self.pheromones = gaussian_filter(self.pheromones, self.sigma) * self.decay
 
         # self.pheromones = np.maximum(0.01, self.pheromones)
