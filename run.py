@@ -1,14 +1,14 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation 
+from matplotlib import animation
 import matplotlib.patches as patches
 
 
 width = 30
 height = 30
 steps = 1000
-ant_size = 0.2
+ant_size = 0.4
 
 
 def grid_to_array(pos, width, height):
