@@ -27,7 +27,7 @@ class Ant(Agent):
             if not self.carry_food:
                 self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
-            print(self.history)
+            self.environment.path_lengths.append(len(self.history))
         if [*self.pos] == [*self.colony.pos]:
             self.carry_food = False
             self.history = []
@@ -38,18 +38,20 @@ class Ant(Agent):
         if not self.carry_food:
             self.history.append(self.pos)
 
+    @property
+    def on_food(self):
+        """
+        checks whether the ant is on top of a food source
+        :return: True if on food, False otherwise
+        """
+        return [*self.pos] in np.array(np.where(self.environment.food.grid > 0)).T.tolist()
+
     def move(self, positions, pheromone_levels):
         if self.carry_food:
             move_to = self.history.pop()
-            print(move_to)
         else:
-            norm = sum(pheromone_levels)
-            l = len(pheromone_levels)
-            if norm > 0:
-                probabilities = pheromone_levels / sum(pheromone_levels)
-            else:
-                probabilities = np.ones(l) / l
-
+            pheromone_levels = np.array(pheromone_levels) + 0.1
+            probabilities = pheromone_levels / sum(pheromone_levels)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
         self.environment.move_agent(self, move_to)

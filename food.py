@@ -29,4 +29,4 @@ class Food:
             x = np.random.randint(0, self.width - 1, 1)
             y = np.random.randint(0, self.height - 1, 1)
             xy = (x, y)
-        self.grid[xy] += 50
+        self.grid[xy] += 5000000
