@@ -15,7 +15,7 @@ def grid_to_array(pos, width, height):
     return pos[0] - 0.5, height - pos[1] - 1.5
 
 
-def store_state(i, colony_positions, food_positions, ant_positions):
+def store_state(i, colony_positions, food_positions, ant_positions, ant_foods):
     # append the pheromone distribution
     pheromones.append(np.rot90(np.copy(env.pheromones)))
 
@@ -27,6 +27,7 @@ def store_state(i, colony_positions, food_positions, ant_positions):
         # append the positions of the ants
         for k, agent in enumerate(colony.ant_list.agents):
             ant_positions[i].append(grid_to_array(agent.pos, width, height))
+            ant_foods[i].append(agent.carry_food)
 
     # append the positions of the food
     for x, y in np.array(np.where(env.food.grid > 0)).T:
@@ -39,6 +40,7 @@ def init_figure():
                    cmap="Purples")
 
     colony_patches, food_patches, ant_patches = [], [], []
+
     for colony_pos in colony_positions[0]:
         col = patches.Rectangle(colony_pos, 1, 1, linewidth=1, edgecolor='r', facecolor='r', fill=True)
         ax.add_patch(col)
@@ -47,9 +49,9 @@ def init_figure():
         food = patches.Rectangle(food_pos, 1, 1, linewidth=1, edgecolor='g', facecolor='g', fill=True)
         ax.add_patch(food)
         food_patches.append(food)
-    for ant_pos in ant_positions[0]:
+    for ant_pos, ant_food in zip(ant_positions[0], ant_foods[0]):
         ant_pos = (ant_pos[0] + (1 - ant_size) / 2, ant_pos[1] + (1 - ant_size) / 2)
-        ant = patches.Rectangle(ant_pos, ant_size, ant_size, linewidth=1, edgecolor='k', facecolor='k', fill=True)
+        ant = patches.Rectangle(ant_pos, ant_size, ant_size, linewidth=2, edgecolor='k', facecolor='k', fill=False)
         ax.add_patch(ant)
         ant_patches.append(ant)
 
@@ -66,7 +68,14 @@ def animate(i):
         ant_pos = ant_positions[i][j]
         ant_pos = (ant_pos[0] + (1 - ant_size) / 2, ant_pos[1] + (1 - ant_size) / 2)
         ant_patch.set_xy(ant_pos)
-
+        if ant_foods[i][j]:
+            ant_patch.set_facecolor('g')
+            ant_patch.set_edgecolor('g')
+            ant_patch.set_fill(True)
+        else:
+            ant_patch.set_facecolor('k')
+            ant_patch.set_edgecolor('k')
+            ant_patch.set_fill(False)
     plt.title('iteration: ' + str(i))
     fig.canvas.draw()
     return im
@@ -78,15 +87,17 @@ pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]
 colony_positions = [[] for _ in range(steps + 1)]
 food_positions = [[] for _ in range(steps + 1)]
-store_state(0, colony_positions, food_positions, ant_positions)
+ant_foods = [[] for _ in range(steps + 1)]
+store_state(0, colony_positions, food_positions, ant_positions, ant_foods)
 for i in range(1, steps + 1):
     # take a step
     env.step()
 
     # store the state for animation
-    store_state(i, colony_positions, food_positions, ant_positions)
+    store_state(i, colony_positions, food_positions, ant_positions, ant_foods)
 
 
 fig, ax, im, colony_patches, food_patches, ant_patches = init_figure()
 ani = animation.FuncAnimation(fig, animate, steps, interval=1)
 plt.show()
+
