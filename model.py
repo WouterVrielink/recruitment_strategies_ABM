@@ -19,7 +19,7 @@ class Environment(Model):
         self.food = Food(self)
         self.food.add_food()
         self.diff_kernel = np.array(
-            [[0, 0, 1, 0, 0], [0, 1, 2, 1, 0], [1, 2, 4, 2, 1], [0, 1, 2, 1, 0], [0, 0, 1, 0, 0]])
+            [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 4, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])
         self.diff_kernel = self.diff_kernel / np.sum(self.diff_kernel) * decay
 
     def step(self):
