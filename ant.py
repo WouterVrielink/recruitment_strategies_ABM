@@ -23,7 +23,13 @@ class Ant(Agent):
         self.environment.place_pheromones(self.pos)
 
     def move(self, positions, pheromone_levels):
-        probabilities = pheromone_levels / sum(pheromone_levels)
+        norm = sum(pheromone_levels)
+        l = len(pheromone_levels)
+        if norm > 0:
+            probabilities = pheromone_levels / sum(pheromone_levels)
+        else:
+            probabilities = np.ones(l) / l
+
         move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
         self.environment.move_agent(self, move_to)
