@@ -32,7 +32,7 @@ class FoodGrid:
         self.grid[xy] += 5000000
     def get_food_pos(self):
         """
-        returns a list of lists of all the x, y positions
-        :return: [[x, y], [x, y], ...]
+        returns a list of tuples of all the x, y positions
+        :return: [(x, y), (x, y), ...]
         """
-        return np.array(np.where(self.environment.food.grid > 0)).T.tolist()
+        return [(x,y) for x, y in np.array(np.where(self.grid > 0)).T.tolist()]
