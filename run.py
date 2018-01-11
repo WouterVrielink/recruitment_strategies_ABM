@@ -38,7 +38,7 @@ def init_figure():
     ax = fig.add_subplot(111)
     im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=np.max([np.max(p) for p in pheromones]),
                    interpolation='None',
-                   cmap="Purples")
+                   cmap="terrain_r")
 
     colony_patches, food_patches, ant_patches = [], [], []
 
@@ -82,7 +82,7 @@ def animate(i):
     return im
 
 
-env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.99, sigma=0.2, moore=True)
+env = Environment(width=width, height=height, n_colonies=1, n_ants=300, decay=0.97, sigma=0.1, moore=False)
 
 pheromones = []
 ant_positions = [[] for _ in range(steps + 1)]

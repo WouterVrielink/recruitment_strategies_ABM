@@ -5,10 +5,11 @@ from food import Food
 import numpy as np
 from scipy import signal
 from scipy.ndimage import gaussian_filter
+from scipy.spatial import distance
 
 
 class Environment(Model):
-    def __init__(self, width, height, n_colonies, n_ants, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, decay=0.99, sigma=0.1, moore=False):
         super().__init__()
         self.width = width
         self.height = height
@@ -27,6 +28,7 @@ class Environment(Model):
         self.pheromone_updates = []
         self.path_lengths = []
         self.min_path_lengths = []
+        self.min_distance = distance.cityblock(self.colonies[0].location, self.food.get_food_pos())
 
     def step(self):
         for col in self.colonies:
