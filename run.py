@@ -86,6 +86,6 @@ for i in range(1, steps + 1):
     store_state(i, colony_positions, food_positions, ant_positions)
 
 
-fig, ax, im, colony_patches, ant_patches = init_figure()
+fig, ax, im, colony_patches, food_patches, ant_patches = init_figure()
 ani = animation.FuncAnimation(fig, animate, steps, interval=1000)
 plt.show()
