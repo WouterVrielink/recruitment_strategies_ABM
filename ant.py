@@ -77,4 +77,14 @@ class Ant(Agent):
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
             self.environment.move_agent(self, move_to)
-            self.history.append(self.pos)
+            self.add_pos_to_history()
+
+    def add_pos_to_history(self):
+        """
+        Add current position to the history, keeps track of duplicate positions and cuts of the resulting loop
+        """
+        self.history.append(self.pos)
+
+        first_occurrence = self.history.index(self.pos)
+        if first_occurrence != len(self.history) - 1:
+            self.history = self.history[:first_occurrence + 1]
