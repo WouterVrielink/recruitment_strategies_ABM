@@ -1,6 +1,7 @@
 from mesa import Model
 from mesa.space import MultiGrid
 from colony import Colony
+from obstacle import Obstacle
 from food import Food
 import numpy as np
 from scipy import signal
@@ -8,7 +9,7 @@ from scipy.ndimage import gaussian_filter
 
 
 class Environment(Model):
-    def __init__(self, width, height, n_colonies, n_ants, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
         super().__init__()
         self.width = width
         self.height = height
@@ -26,6 +27,7 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
+        self.obstacles = [Obstacle(self,None,10) for i in range(n_obstacles)]
 
     def step(self):
         for col in self.colonies:
