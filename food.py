@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.patches as patches
 
 
 class FoodGrid:
@@ -35,3 +36,29 @@ class FoodGrid:
         :return: [(x, y), (x, y), ...]
         """
         return [(x, y) for x, y in np.array(np.where(self.grid > 0)).T.tolist()]
+
+    def update_vis(self):
+        """
+
+        :return:
+        """
+        food_spots = self.get_food_pos()
+        for i in range(max([len(food_spots), len(self._patches)])):
+            if i > len(self._patches) - 1:
+                patch = patches.Rectangle(self.environment.grid_to_array(food_spots[i]), 1, 1, linewidth=1, edgecolor='g',
+                                          facecolor='g', fill=True)
+                self._patches.append(patch)
+                self.environment.ax.add_patch(patch)
+            elif i > len(self._patches):
+                self._patches[i].remove()
+            else:
+                self._patches[i].set_xy(food_spots[i])
+
+
+        return self._patches
+
+    def __exit__(self):
+        """
+        Make sure the animation is update accordingly to the removed food
+        """
+        raise NotImplementedError

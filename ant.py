@@ -1,51 +1,67 @@
 import numpy as np
-
 from mesa import Agent
-
 
 class Ant(Agent):
     """An agent with fixed legs."""
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
-        self.pos = colony.location
+        self.pos = colony.pos
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
-        self.last_pos = (-1,-1)
-        self.history = [colony.location]
+        self.last_pos = (-1, -1)
+        self.history = [colony.pos]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 1
+        self.slowScore = 0
 
     def step(self):
         """
         Do a single time-step. Function called by colony
         """
+        if self.bumped_on_obstacle:
+            self.slowScore = 5 # TODO make this an obstacle variable
+
         # get the possible positions to move too, and their respective pheromone levels
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
         # store current position and move to the next
         self.last_pos = self.pos
-        self.move(positions, pheromone_levels)
+        if self.slowScore > 0:
+            self.slowScore -= 1 # don't move
+            self.history.append(self.pos)
+        else:
+            self.move(positions, pheromone_levels)
+            # check if the ant is on food
+            if self.on_food:
+                # pick up food
+                if not self.carry_food:
+                    self.environment.food.grid[self.pos] -= 1
+                self.carry_food = True
+                self.environment.path_lengths.append(len(self.history)+1)
 
-        # check if the ant is on food
-        if self.on_food:
-            # pick up food
-            if not self.carry_food:
-                self.environment.food.grid[self.pos] -= 1
-            self.carry_food = True
-            self.environment.path_lengths.append(len(self.history)+1)
+            # drop pheromones if carrying food
+            if self.carry_food:
+                self.environment.place_pheromones(self.pos)
 
-        # drop pheromones if carrying food
-        if self.carry_food:
-            self.environment.place_pheromones(self.pos)
+            # if on the colony, drop food and remove history
+            if self.on_colony:
+                self.carry_food = False
+                self.history = [self.pos]
 
-        # if on the colony, drop food and remove history
-        if self.on_colony:
-            self.carry_food = False
-            self.history = [self.pos]
+    @property
+    def bumped_on_obstacle(self):
+        """
+        Checks if ant is currently at an obstacle.
+        """
+        for i in range(0, len(self.environment.obstacles)):
+            if self.history[-1] != self.environment.obstacles[i].location and self.pos == self.environment.obstacles[i].location:
+                return True
+            else:
+                return False
 
     @property
     def on_colony(self):

@@ -1,7 +1,10 @@
 from mesa import Model
 from mesa.space import MultiGrid
 from colony import Colony
+
+from obstacle import Obstacle
 from food import FoodGrid
+
 import numpy as np
 import random
 from scipy.ndimage import gaussian_filter
@@ -10,7 +13,7 @@ from scipy.spatial import distance
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, width, height, n_colonies, n_ants, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
         :param height: int, height of the system
@@ -20,6 +23,7 @@ class Environment(Model):
         :param sigma: float, sigma of the Gaussian convolution
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
+
         super().__init__()
         self.width = width
         self.height = height
@@ -37,8 +41,13 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
+        self.obstacles = [Obstacle(self,None,10) for i in range(n_obstacles)]
         self.min_path_lengths = []
-        self.min_distance = distance.cityblock(self.colonies[0].location, self.food.get_food_pos())
+        self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
+
+        # animation attributes
+        self.pheromone_im = None
+        self.ax = None
 
     def step(self):
         """
@@ -67,9 +76,10 @@ class Environment(Model):
         """
         if self.moore:
             # print(np.sum(np.subtract(loc, ant.pos) ** 2))
-            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
-                "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large".format(ant.pos, loc)
+            if loc != ant.pos: # we don't want this assert when the ant has to stay on position
+                assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
+                    "the ant can't move from its original position {} to the new position {}, because the distance " \
+                    "is too large".format(ant.pos, loc)
         else:
             assert np.sum(np.subtract(loc, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
@@ -118,3 +128,61 @@ class Environment(Model):
         self.pheromones = gaussian_filter(self.pheromones, self.sigma) * self.decay
 
         # self.pheromones = np.maximum(0.01, self.pheromones)
+
+    def animate(self, ax):
+        """
+
+        :param ax:
+        :return:
+        """
+        self.ax = ax
+        self.animate_pheromones()
+        self.animate_colonies()
+        self.animate_ants()
+        self.animate_food()
+
+    def animate_pheromones(self):
+        """
+        Update the visualization part of the Pheromones.
+        :param ax:
+        """
+
+        pheromones = np.rot90(self.pheromones.astype(np.float64).reshape(self.width, self.height))
+        if not self.pheromone_im:
+            self.pheromone_im = self.ax.imshow(pheromones,
+                                               vmin=0, vmax=50,
+                                               interpolation='None', cmap="Purples")
+        else:
+            self.pheromone_im.set_array(pheromones)
+
+    def animate_colonies(self):
+        """
+        Update the visualization part of the Colonies.
+        :return:
+        """
+        for colony in self.colonies:
+            colony.update_vis()
+
+    def animate_food(self):
+        """
+        Update the visualization part of the FoodGrid.
+        :return:
+        """
+        self.food.update_vis()
+
+    def animate_ants(self):
+        """
+        Update the visualization part of the Ants.
+        """
+        for colony in self.colonies:
+            for ant in colony.ant_list.agents:
+                ant.update_vis()
+
+
+    def grid_to_array(self, pos):
+        """
+        Convert the position/indices on self.grid to imshow array.
+        :param pos: tuple (int: x, int: y)
+        :return: tuple (float: x, float: y)
+        """
+        return pos[0] - 0.5, self.height - pos[1] - 1.5
