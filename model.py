@@ -46,6 +46,10 @@ class Environment(Model):
         self.min_path_lengths = []
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
 
+        # animation attributes
+        self.pheromone_im = None
+        self.ax = None
+
     def step(self):
         """
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
@@ -125,3 +129,61 @@ class Environment(Model):
         self.pheromones = gaussian_filter(self.pheromones, self.sigma) * self.decay
 
         # self.pheromones = np.maximum(0.01, self.pheromones)
+
+    def animate(self, ax):
+        """
+
+        :param ax:
+        :return:
+        """
+        self.ax = ax
+        self.animate_pheromones()
+        self.animate_colonies()
+        self.animate_ants()
+        self.animate_food()
+
+    def animate_pheromones(self):
+        """
+        Update the visualization part of the Pheromones.
+        :param ax:
+        """
+
+        pheromones = np.rot90(self.pheromones.astype(np.float64).reshape(self.width, self.height))
+        if not self.pheromone_im:
+            self.pheromone_im = self.ax.imshow(pheromones,
+                                               vmin=0, vmax=50,
+                                               interpolation='None', cmap="Purples")
+        else:
+            self.pheromone_im.set_array(pheromones)
+
+    def animate_colonies(self):
+        """
+        Update the visualization part of the Colonies.
+        :return:
+        """
+        for colony in self.colonies:
+            colony.update_vis()
+
+    def animate_food(self):
+        """
+        Update the visualization part of the FoodGrid.
+        :return:
+        """
+        self.food.update_vis()
+
+    def animate_ants(self):
+        """
+        Update the visualization part of the Ants.
+        """
+        for colony in self.colonies:
+            for ant in colony.ant_list.agents:
+                ant.update_vis()
+
+
+    def grid_to_array(self, pos):
+        """
+        Convert the position/indices on self.grid to imshow array.
+        :param pos: tuple (int: x, int: y)
+        :return: tuple (float: x, float: y)
+        """
+        return pos[0] - 0.5, self.height - pos[1] - 1.5
