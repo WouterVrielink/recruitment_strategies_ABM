@@ -17,7 +17,7 @@ class Ant(Agent):
         self.carry_food = False
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
-        self.persistance = 1
+        self.persistance = 4
 
     def step(self):
         """
@@ -72,16 +72,12 @@ class Ant(Agent):
         :return: the new position (x, y)
         """
         if self.carry_food:
-            move_to = self.history.pop()
+            self.environment.move_agent(self, self.history.pop())
         else:
             pheromone_levels = np.array(pheromone_levels) + 0.1
             probabilities = pheromone_levels / sum(pheromone_levels)
-            norm = sum(pheromone_levels)
             l = len(pheromone_levels)
-            if norm == 0:
-                pheromone_probabilities = np.ones(l)
-            else:
-                pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
+            pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
             direction = np.subtract(self.pos, self.last_steps[0])
             direction_probabilities = np.zeros(l)
             for i,pos in enumerate(positions):
@@ -94,8 +90,8 @@ class Ant(Agent):
                 probabilities = [p + self.persistance * d for p,d in zip(pheromone_probabilities,direction_probabilities)]
             probabilities /= sum(probabilities)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
-        self.environment.move_agent(self, move_to)
-        self.add_pos_to_history()
+            self.environment.move_agent(self, move_to)
+            self.add_pos_to_history()
 
     def add_pos_to_history(self):
         """
@@ -108,7 +104,4 @@ class Ant(Agent):
                 self.history = self.history[:first_occurrence + 1]
             self.last_steps.append(self.pos)
             self.last_steps.pop(0)
-        self.environment.move_agent(self, move_to)
-
-        return move_to
 
