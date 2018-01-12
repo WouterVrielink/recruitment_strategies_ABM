@@ -42,7 +42,7 @@ class Ant(Agent):
         # if on the colony, drop food and remove history
         if self.on_colony:
             self.carry_food = False
-            self.history = []
+            self.history = [self.pos]
 
 
     @property
