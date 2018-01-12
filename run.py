@@ -153,10 +153,10 @@ def plot_continuous(env, steps = 1000):
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 200
+    steps = 2000
     ant_size = 0.4
 
-    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.99, sigma=0.2, moore=True)
+    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, decay=0.98, sigma=0.2, moore=True)
 
     # compute_then_plot(env, steps)
     plot_continuous(env, steps=steps)
