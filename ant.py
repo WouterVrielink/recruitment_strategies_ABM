@@ -94,8 +94,8 @@ class Ant(Agent):
                 probabilities = [p + self.persistance * d for p,d in zip(pheromone_probabilities,direction_probabilities)]
             probabilities /= sum(probabilities)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
-            self.environment.move_agent(self, move_to)
-            self.add_pos_to_history()
+        self.environment.move_agent(self, move_to)
+        self.add_pos_to_history()
 
     def add_pos_to_history(self):
         """
