@@ -20,10 +20,10 @@ class Colony(Agent):
         # Create agents
         self.add_ants(N)
 
-        # register self
+        # Register self
         self.environment.grid.place_agent(self, self.pos)
 
-        # animation attributes
+        # Animation attributes
         self._patches = []
 
     def on_colony(self, pos):

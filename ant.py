@@ -17,7 +17,7 @@ class Ant(Agent):
         self.carry_food = False
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
-        self.persistance = 0
+        self.persistance = 1
         self.slowScore = 0
 
         # animation attributes
@@ -96,22 +96,35 @@ class Ant(Agent):
         if self.carry_food:
             self.environment.move_agent(self, self.history.pop())
         else:
+            # Calculate pheromone bias
             pheromone_levels = np.array(pheromone_levels) + 0.1
-            probabilities = pheromone_levels / sum(pheromone_levels)
-            l = len(pheromone_levels)
             pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
+
+            # Calculate direction bias
             direction = np.subtract(self.pos, self.last_steps[0])
-            direction_probabilities = np.zeros(l)
-            for i,pos in enumerate(positions):
-                if (np.sign(pos[0] - self.pos[0]) == np.sign(direction[0]) or pos[0] - self.pos[0] == 0) and (np.sign(pos[1] - self.pos[1]) == np.sign(direction[1]) or pos[1] - self.pos[1] == 0):
+            direction_probabilities = np.zeros(len(positions))
+
+            # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
+            for i, pos in enumerate(positions):
+                vecsum = direction + pos
+
+                if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
                     direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
-            if direction_probabilities.any() == np.zeros(l).any():
+
+            # Prevent weird bug (ants going to left bottom)
+            if direction_probabilities.any() == np.zeros(len(positions)).any():
                 probabilities = pheromone_probabilities
             else:
                 direction_probabilities /= sum(direction_probabilities)
-                probabilities = [p + self.persistance * d for p,d in zip(pheromone_probabilities,direction_probabilities)]
+
+                # Combine pheromone and direction bias
+                probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+
+            # Normalise
             probabilities /= sum(probabilities)
+
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+
             self.environment.move_agent(self, move_to)
             self.add_pos_to_history()
 
@@ -145,5 +158,4 @@ class Ant(Agent):
             self._patch.set_xy(pos)
 
         return self._patch
-
 
