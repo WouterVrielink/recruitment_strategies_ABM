@@ -10,6 +10,9 @@ class FoodGrid:
         self.height = environment.height
         self.grid = np.zeros((self.width, self.height))
 
+        # animation attributes
+        self._patches = []
+
     def step(self):
         """
         When there is no more food left on the map, add one food location.

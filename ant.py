@@ -1,5 +1,7 @@
 import numpy as np
 from mesa import Agent
+import matplotlib.patches as patches
+
 
 class Ant(Agent):
     """An agent with fixed legs."""
@@ -17,6 +19,10 @@ class Ant(Agent):
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 0
         self.slowScore = 0
+
+        # animation attributes
+        self._patch = None
+        self.size = 0.4
 
     def step(self):
         """
@@ -120,4 +126,24 @@ class Ant(Agent):
                 self.history = self.history[:first_occurrence + 1]
             self.last_steps.append(self.pos)
             self.last_steps.pop(0)
+
+    def update_vis(self):
+        """
+        :return:
+        """
+        if not self._patch:
+            self._patch = patches.Rectangle(self.environment.grid_to_array(self.pos), 0.4, 0.4, linewidth=2,
+                                            edgecolor='k', facecolor='w', fill=True)
+            self.environment.ax.add_patch(self._patch)
+        else:
+            if self.carry_food:
+                self._patch.set_facecolor('g')
+            else:
+                self._patch.set_facecolor('w')
+            pos = self.environment.grid_to_array(self.pos)
+            pos = (pos[0] + (1 - self.size) / 2, pos[1] + (1 - self.size) / 2)
+            self._patch.set_xy(pos)
+
+        return self._patch
+
 
