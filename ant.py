@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.patches as patches
 
 from mesa import Agent
 
@@ -18,6 +19,10 @@ class Ant(Agent):
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 4
+
+        # animation attributes
+        self._patch = None
+        self.size = 0.4
 
     def step(self):
         """
@@ -105,3 +110,28 @@ class Ant(Agent):
             self.last_steps.append(self.pos)
             self.last_steps.pop(0)
 
+    def update_vis(self):
+        """
+
+        :return:
+        """
+        if not self._patch:
+            self._patch = patches.Rectangle(self.environment.grid_to_array(self.pos), 0.4, 0.4, linewidth=2,
+                                            edgecolor='k', facecolor='w', fill=True)
+            self.environment.ax.add_patch(self._patch)
+        else:
+            if self.carry_food:
+                self._patch.set_facecolor('g')
+            else:
+                self._patch.set_facecolor('w')
+            pos = self.environment.grid_to_array(self.pos)
+            pos = (pos[0] + (1 - self.size) / 2, pos[1] + (1 - self.size) / 2)
+            self._patch.set_xy(pos)
+
+        return self._patch
+
+    def __exit__(self):
+        """
+        Make sure the animation is update accordingly to the removed ant
+        """
+        raise NotImplementedError
