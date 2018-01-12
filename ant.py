@@ -15,6 +15,9 @@ class Ant(Agent):
         self.history = [colony.pos]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
+        self.memory = 3
+        self.last_steps = [self.pos for i in range(self.memory)]
+        self.persistance = 4
 
     def step(self):
         """
@@ -73,8 +76,20 @@ class Ant(Agent):
         else:
             pheromone_levels = np.array(pheromone_levels) + 0.1
             probabilities = pheromone_levels / sum(pheromone_levels)
+            l = len(pheromone_levels)
+            pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
+            direction = np.subtract(self.pos, self.last_steps[0])
+            direction_probabilities = np.zeros(l)
+            for i,pos in enumerate(positions):
+                if (np.sign(pos[0] - self.pos[0]) == np.sign(direction[0]) or pos[0] - self.pos[0] == 0) and (np.sign(pos[1] - self.pos[1]) == np.sign(direction[1]) or pos[1] - self.pos[1] == 0):
+                    direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
+            if direction_probabilities.any() == np.zeros(l).any():
+                probabilities = pheromone_probabilities
+            else:
+                direction_probabilities /= sum(direction_probabilities)
+                probabilities = [p + self.persistance * d for p,d in zip(pheromone_probabilities,direction_probabilities)]
+            probabilities /= sum(probabilities)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
-
             self.environment.move_agent(self, move_to)
             self.add_pos_to_history()
 
@@ -84,8 +99,9 @@ class Ant(Agent):
         """
         if not self.on_food:
             self.history.append(self.pos)
-
             first_occurrence = self.history.index(self.pos)
             if first_occurrence != len(self.history) - 1:
                 self.history = self.history[:first_occurrence + 1]
+            self.last_steps.append(self.pos)
+            self.last_steps.pop(0)
 
