@@ -44,7 +44,6 @@ class Ant(Agent):
             self.carry_food = False
             self.history = [self.pos]
 
-
     @property
     def on_colony(self):
         """
@@ -83,8 +82,10 @@ class Ant(Agent):
         """
         Add current position to the history, keeps track of duplicate positions and cuts of the resulting loop
         """
-        self.history.append(self.pos)
+        if not self.on_food:
+            self.history.append(self.pos)
 
-        first_occurrence = self.history.index(self.pos)
-        if first_occurrence != len(self.history) - 1:
-            self.history = self.history[:first_occurrence + 1]
+            first_occurrence = self.history.index(self.pos)
+            if first_occurrence != len(self.history) - 1:
+                self.history = self.history[:first_occurrence + 1]
+

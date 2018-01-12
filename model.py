@@ -66,7 +66,8 @@ class Environment(Model):
         :param loc: tuple (x, y)
         """
         if self.moore:
-            assert np.sum(np.subtract(loc, ant.pos) ** 2) <= 2, \
+            # print(np.sum(np.subtract(loc, ant.pos) ** 2))
+            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
                 "is too large".format(ant.pos, loc)
         else:
