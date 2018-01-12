@@ -73,9 +73,10 @@ class Environment(Model):
         """
         if self.moore:
             # print(np.sum(np.subtract(loc, ant.pos) ** 2))
-            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
-                "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large".format(ant.pos, loc)
+            if loc != ant.pos: # we don't want this assert when the ant has to stay on position
+                assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
+                    "the ant can't move from its original position {} to the new position {}, because the distance " \
+                    "is too large".format(ant.pos, loc)
         else:
             assert np.sum(np.subtract(loc, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
