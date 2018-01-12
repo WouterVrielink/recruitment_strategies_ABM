@@ -22,6 +22,7 @@ class Colony(Agent):
     def on_colony(self, pos):
         """
         Checks whether the pos is on top of its own colony.
+        :param pos: tuple (x, y) coordinates
         :return: True if on colony, False otherwise
         """
         return np.sum(np.subtract(pos, self.pos) ** 2) ** 0.5 <= self.radius
