@@ -7,12 +7,12 @@ class Ant(Agent):
     """An agent with fixed legs."""
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
-        self.pos = colony.location
+        self.pos = colony.pos
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
         self.last_pos = (-1, -1)
-        self.history = [colony.location]
+        self.history = [colony.pos]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = False
 

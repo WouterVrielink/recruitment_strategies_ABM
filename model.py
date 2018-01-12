@@ -38,7 +38,7 @@ class Environment(Model):
         self.pheromone_updates = []
         self.path_lengths = []
         self.min_path_lengths = []
-        self.min_distance = distance.cityblock(self.colonies[0].location, self.food.get_food_pos())
+        self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
 
     def step(self):
         """

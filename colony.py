@@ -5,10 +5,10 @@ import numpy as np
 
 class Colony(Agent):
     """ A Colony which contains a number of ants."""
-    def __init__(self, environment, pheromone_id, location, N, radius=1):
+    def __init__(self, environment, pheromone_id, pos, N, radius=1):
         self.environment = environment
         self.pheromone_id = pheromone_id
-        self.location = location
+        self.pos = pos
         self.num_agents = N
         self.ant_list = RandomActivation(environment)
         self.radius = radius
@@ -17,7 +17,7 @@ class Colony(Agent):
         self.add_ants(N)
 
         # register self
-        self.environment.grid.place_agent(self, self.location)
+        self.environment.grid.place_agent(self, self.pos)
 
     def on_colony(self, pos):
         """
