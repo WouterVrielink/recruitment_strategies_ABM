@@ -25,7 +25,7 @@ class Ant(Agent):
 
         # store current position and move to the next
         self.last_pos = self.pos
-        self.pos = self.move(positions, pheromone_levels)
+        self.move(positions, pheromone_levels)
 
         # check if the ant is on food
         if self.on_food:
@@ -34,11 +34,6 @@ class Ant(Agent):
                 self.environment.food.grid[self.pos] -= 1
             self.carry_food = True
             self.environment.path_lengths.append(len(self.history)+1)
-
-        # check if the ant is on its own colony
-        if self.on_colony:
-            self.carry_food = False
-            self.history = []
 
         # drop pheromones if carrying food
         if self.carry_food:
@@ -49,9 +44,6 @@ class Ant(Agent):
             self.carry_food = False
             self.history = []
 
-        # remember history
-        if not self.carry_food:
-            self.history.append(self.pos)
 
     @property
     def on_colony(self):
@@ -78,12 +70,11 @@ class Ant(Agent):
         :return: the new position (x, y)
         """
         if self.carry_food:
-            move_to = self.history.pop()
+            self.environment.move_agent(self, self.history.pop())
         else:
             pheromone_levels = np.array(pheromone_levels) + 0.1
             probabilities = pheromone_levels / sum(pheromone_levels)
             move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
-        self.environment.move_agent(self, move_to)
-
-        return move_to
+            self.environment.move_agent(self, move_to)
+            self.history.append(self.pos)
