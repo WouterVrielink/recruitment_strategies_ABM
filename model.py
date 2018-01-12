@@ -44,7 +44,7 @@ class Environment(Model):
         self.path_lengths = []
         self.obstacles = [Obstacle(self,None,10) for i in range(n_obstacles)]
         self.min_path_lengths = []
-        self.min_distance = distance.cityblock(self.colonies[0].location, self.food.get_food_pos())
+        self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
 
     def step(self):
         """
