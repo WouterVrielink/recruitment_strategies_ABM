@@ -1,7 +1,10 @@
 from mesa import Model
 from mesa.space import MultiGrid
 from colony import Colony
+
+from obstacle import Obstacle
 from food import FoodGrid
+
 import numpy as np
 import random
 from scipy.ndimage import gaussian_filter
@@ -10,7 +13,8 @@ from scipy.spatial import distance
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, width, height, n_colonies, n_ants, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
+
         """
         :param width: int, width of the system
         :param height: int, height of the system
@@ -20,6 +24,7 @@ class Environment(Model):
         :param sigma: float, sigma of the Gaussian convolution
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
+
         super().__init__()
         self.width = width
         self.height = height
@@ -37,6 +42,7 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
+        self.obstacles = [Obstacle(self,None,10) for i in range(n_obstacles)]
         self.min_path_lengths = []
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
 
