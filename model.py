@@ -140,6 +140,7 @@ class Environment(Model):
         self.animate_colonies()
         self.animate_ants()
         self.animate_food()
+        self.animate_obstacles()
 
     def animate_pheromones(self):
         """
@@ -178,6 +179,13 @@ class Environment(Model):
             for ant in colony.ant_list.agents:
                 ant.update_vis()
 
+    def animate_obstacles(self):
+        """
+        Update the visualization part of the Obstacles.
+        :return:
+        """
+        for obstacle in self.obstacles:
+            obstacle.update_vis()
 
     def grid_to_array(self, pos):
         """

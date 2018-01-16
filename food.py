@@ -31,7 +31,7 @@ class FoodGrid:
             y = np.random.randint(0, self.height, 1)[0]
             if not any([colony.on_colony((x, y)) for colony in self.environment.colonies]):
                 xy = (x, y)
-        self.grid[xy] += 5000000
+        self.grid[xy] += 15000
 
     def get_food_pos(self):
         """
