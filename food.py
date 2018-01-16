@@ -49,7 +49,7 @@ class FoodGrid:
         for i in range(max([len(food_spots), len(self._patches)])):
             if i > len(self._patches) - 1:
                 patch = patches.Rectangle(self.environment.grid_to_array(food_spots[i]), 1, 1, linewidth=1, edgecolor='g',
-                                          facecolor='g', fill=True)
+                                          facecolor='g', fill=True, zorder=1)
                 self._patches.append(patch)
                 self.environment.ax.add_patch(patch)
             elif i > len(self._patches):

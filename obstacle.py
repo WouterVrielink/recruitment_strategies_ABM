@@ -50,10 +50,10 @@ class Obstacle(Agent):
                 return pos
 
     def update_vis(self):
-        radius = 0.35
+        radius = 0.4
         if not self._patch:
             self._patch = patches.Circle(self.environment.grid_to_array(self.pos), radius, linewidth=2,
-                                            edgecolor='k', facecolor='k', fill=True)
+                                            edgecolor='y', facecolor='y', fill=True, zorder=1)
             self.environment.ax.add_patch(self._patch)
         else:
             pos = self.environment.grid_to_array((self.pos[0] + 0.5, self.pos[1] - 0.5))

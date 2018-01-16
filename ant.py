@@ -150,7 +150,7 @@ class Ant(Agent):
         """
         if not self._patch:
             self._patch = patches.Rectangle(self.environment.grid_to_array(self.pos), 0.4, 0.4, linewidth=2,
-                                            edgecolor='k', facecolor='w', fill=True)
+                                            edgecolor='k', facecolor='w', fill=True, zorder=2)
             self.environment.ax.add_patch(self._patch)
         else:
             if self.carry_food:
