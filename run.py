@@ -40,7 +40,7 @@ if __name__ == '__main__':
     steps = 200
     ant_size = 0.4
 
-    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
+    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=10, decay=0.99, sigma=0.2,
                       moore=False)
 
     # compute_then_plot(env, steps)
