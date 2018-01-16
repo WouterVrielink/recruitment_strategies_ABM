@@ -29,9 +29,6 @@ class Ant(Agent):
         """
         Do a single time-step. Function called by colony
         """
-        if self.bumped_on_obstacle:
-            self.slowScore = 5 # TODO make this an obstacle variable
-
         self.encounters = 0
 
         # get the possible positions to move too, and their respective pheromone levels
@@ -39,39 +36,36 @@ class Ant(Agent):
 
         # store current position and move to the next
         self.last_pos = self.pos
-        if self.slowScore > 0:
-            self.slowScore -= 1 # don't move
-            self.history.append(self.pos)
-        else:
-            self.move(positions, pheromone_levels)
-            self.encounters += self.count_encounters()
-            # check if the ant is on food
-            if self.on_food:
-                # pick up food
-                if not self.carry_food:
-                    self.environment.food.grid[self.pos] -= 1
-                self.carry_food = True
-                self.environment.path_lengths.append(len(self.history)+1)
+        self.move(positions, pheromone_levels)
 
-            # drop pheromones if carrying food
-            if self.carry_food:
-                self.environment.place_pheromones(self.pos)
+        # keep track of the ant's encounters
+        self.encounters += self.count_encounters()
 
-            # if on the colony, drop food and remove history
-            if self.on_colony:
-                self.carry_food = False
-                self.history = [self.pos]
+        # check if the ant is on food
+        if self.on_food:
+            # pick up food
+            if not self.carry_food:
+                self.environment.food.grid[self.pos] -= 1
+            self.carry_food = True
+            self.environment.path_lengths.append(len(self.history)+1)
 
-    @property
-    def bumped_on_obstacle(self):
+        # drop pheromones if carrying food
+        if self.carry_food and self.slowScore == 0:
+            self.environment.place_pheromones(self.pos)
+
+        # if on the colony, drop food and remove history
+        if self.on_colony:
+            self.carry_food = False
+            self.history = [self.pos]
+
+    def on_obstacle(self):
         """
-        Checks if ant is currently at an obstacle.
+        Checks if ant is currently at an obstacle, and returns this obstacle.
         """
-        for i in range(0, len(self.environment.obstacles)):
-            if self.history[-1] != self.environment.obstacles[i].pos and self.pos == self.environment.obstacles[i].pos:
-                return True
-            else:
-                return False
+        for obstacle in self.model.obstacles:
+            if obstacle.on_obstacle(self.pos):
+                return obstacle
+        return False
 
     @property
     def on_colony(self):
@@ -95,42 +89,48 @@ class Ant(Agent):
         where to walk too depending on which positions it can go to, and the pheromone levels of those positions
         :param positions: list of x, y tuples [(x, y), ...]
         :param pheromone_levels: list of floats describing the pheromone level on the respective position
-        :return: the new position (x, y)
         """
-        if self.carry_food:
-            self.environment.move_agent(self, self.history.pop())
-        else:
-            # Calculate pheromone bias
-            pheromone_levels = np.array(pheromone_levels) + 0.1
-            pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
-
-            # Calculate direction bias
-            direction = np.subtract(self.pos, self.last_steps[0])
-            direction_probabilities = np.zeros(len(positions))
-
-            # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
-            for i, pos in enumerate(positions):
-                vecsum = direction + pos
-
-                if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
-                    direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
-
-            # Prevent weird bug (ants going to left bottom)
-            if direction_probabilities.any() == np.zeros(len(positions)).any():
-                probabilities = pheromone_probabilities
+        if self.slowScore == 0:
+            if self.carry_food:
+                self.environment.move_agent(self, self.history.pop())
             else:
-                direction_probabilities /= sum(direction_probabilities)
+                # Calculate pheromone bias
+                pheromone_levels = np.array(pheromone_levels) + 0.1
+                pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
 
-                # Combine pheromone and direction bias
-                probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+                # Calculate direction bias
+                direction = np.subtract(self.pos, self.last_steps[0])
+                direction_probabilities = np.zeros(len(positions))
 
-            # Normalise
-            probabilities /= sum(probabilities)
+                # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
+                for i, pos in enumerate(positions):
+                    vecsum = direction + pos
 
-            move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+                    if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
+                        direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
 
-            self.environment.move_agent(self, move_to)
-            self.add_pos_to_history()
+                # Prevent weird bug (ants going to left bottom)
+                if direction_probabilities.any() == np.zeros(len(positions)).any():
+                    probabilities = pheromone_probabilities
+                else:
+                    direction_probabilities /= sum(direction_probabilities)
+
+                    # Combine pheromone and direction bias
+                    probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+
+                # Normalise
+                probabilities /= sum(probabilities)
+
+                move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+
+                self.environment.move_agent(self, move_to)
+                self.add_pos_to_history()
+
+            obstacle = self.on_obstacle()
+            if obstacle:
+                self.slowScore += obstacle.cost
+        else:
+            self.slowScore -= 1
 
     def add_pos_to_history(self):
         """

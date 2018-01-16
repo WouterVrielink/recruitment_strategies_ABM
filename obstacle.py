@@ -26,6 +26,11 @@ class Obstacle(Agent):
     def on_obstacle(self, pos):
         return pos == self.pos
 
+    @property
+    def passable(self):
+        raise NotImplementedError
+        # return self.cost > 0
+
     def update_vis(self):
         radius = 0.4
         if not self._patch:
