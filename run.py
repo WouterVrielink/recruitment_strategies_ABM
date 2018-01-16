@@ -1,38 +1,31 @@
 from model import Environment
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import animation
-import matplotlib.patches as patches
-import itertools
 
 
 def compute_then_plot(env, steps):
     raise NotImplementedError
 
 def total_encounters(env):
-	counter = 0
-	for colony in env.colonies:
-		for agent in colony.ant_list.agents:
-			counter += agent.encounters
-	return counter/2
-
-
+    counter = 0
+    for colony in env.colonies:
+        for agent in colony.ant_list.agents:
+            counter += agent.encounters
+    return counter/2
 
 def plot_continuous(env, steps = 1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
     for i in range(steps):
-    	plt.title('iteration: ' + str(i))
-    	plt.pause(0.001)
+        plt.title('iteration: ' + str(i))
+        plt.pause(0.1)
 
-    	# take a step
-    	env.step()
-    	number_of_encounters = total_encounters(env)
-    	# store the state for animation
-    	env.animate(ax)
-    	fig.canvas.draw()
-
+        # take a step
+        env.step()
+        number_of_encounters = total_encounters(env)
+        # store the state for animation
+        env.animate(ax)
+        fig.canvas.draw()
 
 if __name__ == '__main__':
     width = 20
