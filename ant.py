@@ -19,7 +19,7 @@ class Ant(Agent):
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 1
         self.slowScore = 0
-
+        self.path_lengths = [np.inf]
         # animation attributes
         self._patch = None
         self.size = 0.4
@@ -47,7 +47,7 @@ class Ant(Agent):
                 if not self.carry_food:
                     self.environment.food.grid[self.pos] -= 1
                 self.carry_food = True
-                self.environment.path_lengths.append(len(self.history)+1)
+                self.path_lengths.append(len(self.history)+1)
 
             # drop pheromones if carrying food
             if self.carry_food:

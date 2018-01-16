@@ -9,7 +9,8 @@ import itertools
 def compute_then_plot(env, steps):
     raise NotImplementedError
 
-def plot_continuous(env, steps = 1000):
+
+def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
@@ -29,10 +30,14 @@ def plot_continuous(env, steps = 1000):
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 2000
+    steps = 200
     ant_size = 0.4
 
-    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=10, decay=0.99, sigma=0.2, moore=True)
+    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
+                      moore=False)
 
-    # compute_then_plot(env, steps)
     plot_continuous(env, steps=steps)
+    min_paths = env.datacollector.get_model_vars_dataframe()
+    agent_min_paths = env.datacollector.get_agent_vars_dataframe()
+    min_paths.plot()
+    plt.show()

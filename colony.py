@@ -14,7 +14,6 @@ class Colony(Agent):
         self.pheromone_id = pheromone_id
         self.pos = pos
         self.num_agents = N
-        self.ant_list = RandomActivation(environment)
         self._radius = radius
 
         # Create agents
@@ -47,7 +46,7 @@ class Colony(Agent):
         """
         for i in range(N):
             a = Ant(i, self)
-            self.ant_list.add(a)
+            self.environment.schedule.add(a)
 
     @property
     def radius(self):
