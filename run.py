@@ -22,35 +22,16 @@ def plot_continuous(env, steps = 1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
-
-    pheromones = []
-
-    ant_positions = [[] for _ in range(steps + 1)]
-    colony_positions = [[] for _ in range(steps + 1)]
-    food_positions = [[] for _ in range(steps + 1)]
-    ant_foods = [[] for _ in range(steps + 1)]
-
-    store_state(0, pheromones, colony_positions, food_positions, ant_positions, ant_foods)
-
-    fig, ax, im, colony_patches, food_patches, ant_patches = init_figure(pheromones, colony_positions, food_positions, ant_positions, ant_foods)
-
-    im = ax.imshow(np.zeros((width, height)), vmin=0, vmax=100,
-                       interpolation='None',
-                       cmap="Purples")
-
-
-    plt.ion()
-    fig.show()
     for i in range(steps):
-        plt.title('iteration: ' + str(i))
-        plt.pause(0.001)
+    	plt.title('iteration: ' + str(i))
+    	plt.pause(0.001)
 
-        # take a step
-        env.step()
-        number_of_encounters = total_encounters(env)
-        # store the state for animation
-        env.animate(ax)
-        fig.canvas.draw()
+    	# take a step
+    	env.step()
+    	number_of_encounters = total_encounters(env)
+    	# store the state for animation
+    	env.animate(ax)
+    	fig.canvas.draw()
 
 
 if __name__ == '__main__':
