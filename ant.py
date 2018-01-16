@@ -16,12 +16,12 @@ class Ant(Agent):
         self.history = [colony.pos]
         self.environment.grid.place_agent(self, self.pos)
         self.carry_food = 0
-        self.carry_capacity = 10
-        self.energy = self.max_energy = 10
-        self.energy_consumption = 0.1
+        self.carry_capacity = abs(np.random.normal(10))
+        self.energy = self.max_energy = abs(np.random.normal(15))
+        self.energy_consumption = np.abs(np.random.normal(0.07,0.25))
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
-        self.persistance = 1
+        self.persistance = 2
         self.slowScore = 0
         self.path_lengths = [np.inf]
         # animation attributes
@@ -53,6 +53,7 @@ class Ant(Agent):
                 # pick up food
                 if not self.carry_food:
                     self.environment.food.grid[self.pos] -= self.carry_capacity
+                    print(self.environment.food.grid[self.pos])
                 self.carry_food = self.carry_capacity
                 self.consume(colony=False)
                 self.environment.path_lengths.append(len(self.history)+1)
@@ -167,6 +168,8 @@ class Ant(Agent):
                 self._patch.set_facecolor('g')
             else:
                 self._patch.set_facecolor('w')
+            if not self.alive:
+                self._patch.set_facecolor('black')
             pos = self.environment.grid_to_array(self.pos)
             pos = (pos[0] + (1 - self.size) / 2, pos[1] + (1 - self.size) / 2)
             self._patch.set_xy(pos)

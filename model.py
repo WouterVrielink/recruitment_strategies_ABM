@@ -61,15 +61,16 @@ class Environment(Model):
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
         are updated per colony in random order.
         """
+        self.food.step()
         self.datacollector.collect(self)
         # update all colonies
-        # for col in random.sample(self.colonies, len(self.colonies)):
-        #     col.step()
+        for col in random.sample(self.colonies, len(self.colonies)):
+            col.step()
         self.schedule.step()
         self.update_pheromones()
 
         # update food
-        self.food.step()
+
 
 
 

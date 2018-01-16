@@ -17,6 +17,7 @@ class Colony(Agent):
         self._radius = radius
         self.food_stash = initial_food
         self.food_collected = 0
+        self.initial_food = initial_food
 
         # Create agents
         self.add_ants(N)
@@ -39,7 +40,6 @@ class Colony(Agent):
         '''
         Advance each ant in this colony by one time-step.
         '''
-        self.ant_list.step()
         self.birth()
 
 
@@ -90,9 +90,9 @@ class Colony(Agent):
         self.food_collected += food
 
     def birth(self):
-        chance = np.exp(-1*initial_food/self.food_stash)
+        chance = np.exp(-2*self.initial_food/self.food_stash)
         if np.random.random() <= chance:
-            ant = add_ants(1)
+            ant = self.add_ants(1)
             self.food_stash -= ant.max_energy
 
 

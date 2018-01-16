@@ -23,7 +23,11 @@ def plot_continuous(env, steps=1000):
     ax = fig.add_subplot(111)
     env.animate(ax)
     for i in range(steps):
-        plt.title('iteration: ' + str(i))
+        ants_alive = 0
+        for ant in env.schedule.agents:
+            if ant.alive:
+                ants_alive += 1
+        plt.title('iteration: ' + str(i) + " || No. ants: " + str(ants_alive) + "\nFood stash: " + str(env.colonies[0].food_stash))
         plt.pause(0.001)
 
         # take a step
@@ -37,7 +41,7 @@ def plot_continuous(env, steps=1000):
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 200
+    steps = 2000
     ant_size = 0.4
 
     env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=10, decay=0.99, sigma=0.2,
