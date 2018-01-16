@@ -9,14 +9,16 @@ import itertools
 def compute_then_plot(env, steps):
     raise NotImplementedError
 
+
 def total_encounters(env):
     counter = 0
-    for colony in env.colonies:
-        for agent in colony.ant_list.agents:
-            counter += agent.encounters
-    return counter/2
 
-def plot_continuous(env, steps = 1000):
+    for agent in env.schedule.agents:
+        counter += agent.encounters
+    return counter / 2
+
+
+def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
