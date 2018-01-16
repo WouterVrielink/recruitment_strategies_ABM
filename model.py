@@ -14,7 +14,6 @@ from scipy.spatial import distance
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-
     def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
@@ -25,15 +24,15 @@ class Environment(Model):
         :param sigma: float, sigma of the Gaussian convolution
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
-
         super().__init__()
         self.width = width
         self.height = height
+        self.moore = moore
+
         self.grid = MultiGrid(width, height, False)
         self.schedule = RandomActivation(self)
         self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants) for i in range(n_colonies)]
         self.pheromones = np.zeros((width, height), dtype=np.float)
-        self.moore = moore
         self.pheromone_level = 1
         self.food = FoodGrid(self)
         self.food.add_food()
@@ -44,6 +43,9 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.obstacles = [Obstacle(self, None, 10) for i in range(n_obstacles)]
+        self.obstacles = []
+        for _ in range(n_obstacles):
+            self.obstacles.append(Obstacle(self))
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
         self.datacollector = DataCollector(
             model_reporters={"Minimum path length": metrics.min_path_length},
@@ -87,6 +89,23 @@ class Environment(Model):
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
                 "is too large".format(ant.pos, loc)
         self.grid.move_agent(ant, loc)
+
+    def get_random_location(self):
+        return (np.random.randint(0, self.width), np.random.randint(0, self.height))
+
+    def position_taken(self, pos):
+        if pos in self.food.get_food_pos():
+            return True
+
+        for colony in self.colonies:
+            if colony.on_colony(pos):
+                return True
+
+        for obstacle in self.obstacles:
+            if obstacle.on_obstacle(pos):
+                return True
+
+        return False
 
     def add_food(self):
         """

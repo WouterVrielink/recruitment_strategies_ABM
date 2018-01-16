@@ -73,7 +73,7 @@ class Colony(Agent):
                 pos = np.add(self.pos, (x, y))
                 if self.on_colony(pos):
                     patch = patches.Rectangle(self.environment.grid_to_array(pos), 1, 1, linewidth=1, edgecolor='r',
-                                                  facecolor='r', fill=True)
+                                                  facecolor='r', fill=True, zorder=1)
                     self._patches.append(patch)
                     self.environment.ax.add_patch(patch)
 

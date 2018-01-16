@@ -9,19 +9,24 @@ import itertools
 def compute_then_plot(env, steps):
     raise NotImplementedError
 
+def total_encounters(env):
+    counter = 0
+    for colony in env.colonies:
+        for agent in colony.ant_list.agents:
+            counter += agent.encounters
+    return counter/2
 
-def plot_continuous(env, steps=1000):
+def plot_continuous(env, steps = 1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
-
     for i in range(steps):
         plt.title('iteration: ' + str(i))
         plt.pause(0.001)
 
         # take a step
         env.step()
-
+        number_of_encounters = total_encounters(env)
         # store the state for animation
         env.animate(ax)
         fig.canvas.draw()
@@ -36,6 +41,7 @@ if __name__ == '__main__':
     env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
                       moore=False)
 
+    # compute_then_plot(env, steps)
     plot_continuous(env, steps=steps)
     min_paths = env.datacollector.get_model_vars_dataframe()
     agent_min_paths = env.datacollector.get_agent_vars_dataframe()
