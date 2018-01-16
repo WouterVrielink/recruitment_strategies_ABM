@@ -24,12 +24,15 @@ class Ant(Agent):
         self._patch = None
         self.size = 0.4
 
+
     def step(self):
         """
         Do a single time-step. Function called by colony
         """
         if self.bumped_on_obstacle:
             self.slowScore = 5 # TODO make this an obstacle variable
+
+        self.encounters = 0
 
         # get the possible positions to move too, and their respective pheromone levels
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
@@ -41,6 +44,7 @@ class Ant(Agent):
             self.history.append(self.pos)
         else:
             self.move(positions, pheromone_levels)
+            self.encounters += self.count_encounters()
             # check if the ant is on food
             if self.on_food:
                 # pick up food
@@ -146,7 +150,7 @@ class Ant(Agent):
         """
         if not self._patch:
             self._patch = patches.Rectangle(self.environment.grid_to_array(self.pos), 0.4, 0.4, linewidth=2,
-                                            edgecolor='k', facecolor='w', fill=True)
+                                            edgecolor='k', facecolor='w', fill=True, zorder=2)
             self.environment.ax.add_patch(self._patch)
         else:
             if self.carry_food:
@@ -158,3 +162,11 @@ class Ant(Agent):
             self._patch.set_xy(pos)
 
         return self._patch
+
+    def count_encounters(self):
+        counter = 0
+        agents = self.environment.grid.get_neighbors(include_center=True, radius = 0, pos=self.pos, moore=self.environment.moore)
+        for agent in agents:
+            if type(agent) == type(self):
+                counter += 1
+        return counter

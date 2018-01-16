@@ -23,14 +23,14 @@ class Environment(Model):
         :param sigma: float, sigma of the Gaussian convolution
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
-
         super().__init__()
         self.width = width
         self.height = height
+        self.moore = moore
+
         self.grid = MultiGrid(width, height, False)
         self.colonies = [Colony(self, i, (width//2, height//2), n_ants) for i in range(n_colonies)]
         self.pheromones = np.zeros((width, height), dtype=np.float)
-        self.moore = moore
         self.pheromone_level = 1
         self.food = FoodGrid(self)
         self.food.add_food()
