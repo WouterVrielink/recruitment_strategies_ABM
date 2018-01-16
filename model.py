@@ -41,7 +41,11 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
-        self.obstacles = [Obstacle(self,None,10) for i in range(n_obstacles)]
+
+        self.obstacles = []
+        for _ in range(n_obstacles):
+            self.obstacles.append(Obstacle(self))
+
         self.min_path_lengths = []
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
 
@@ -85,6 +89,23 @@ class Environment(Model):
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
                 "is too large".format(ant.pos, loc)
         self.grid.move_agent(ant, loc)
+
+    def get_random_location(self):
+        return (np.random.randint(0, self.width), np.random.randint(0, self.height))
+
+    def position_taken(self, pos):
+        if pos in self.food.get_food_pos():
+            return True
+
+        for colony in self.colonies:
+            if colony.on_colony(pos):
+                return True
+
+        for obstacle in self.obstacles:
+            if obstacle.on_obstacle(pos):
+                return True
+
+        return False
 
     def add_food(self):
         """

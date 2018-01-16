@@ -64,7 +64,7 @@ class Ant(Agent):
         Checks if ant is currently at an obstacle.
         """
         for i in range(0, len(self.environment.obstacles)):
-            if self.history[-1] != self.environment.obstacles[i].location and self.pos == self.environment.obstacles[i].location:
+            if self.history[-1] != self.environment.obstacles[i].pos and self.pos == self.environment.obstacles[i].pos:
                 return True
             else:
                 return False
@@ -158,4 +158,3 @@ class Ant(Agent):
             self._patch.set_xy(pos)
 
         return self._patch
-
