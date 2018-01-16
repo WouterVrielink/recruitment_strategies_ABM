@@ -79,11 +79,9 @@ class Environment(Model):
         :param loc: tuple (x, y)
         """
         if self.moore:
-            # print(np.sum(np.subtract(loc, ant.pos) ** 2))
-            if loc != ant.pos: # we don't want this assert when the ant has to stay on position
-                assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
-                    "the ant can't move from its original position {} to the new position {}, because the distance " \
-                    "is too large".format(ant.pos, loc)
+            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
+                "the ant can't move from its original position {} to the new position {}, because the distance " \
+                "is too large".format(ant.pos, loc)
         else:
             assert np.sum(np.subtract(loc, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
@@ -161,6 +159,7 @@ class Environment(Model):
         self.animate_colonies()
         self.animate_ants()
         self.animate_food()
+        self.animate_obstacles()
 
     def animate_pheromones(self):
         """
@@ -199,6 +198,13 @@ class Environment(Model):
             for ant in colony.ant_list.agents:
                 ant.update_vis()
 
+    def animate_obstacles(self):
+        """
+        Update the visualization part of the Obstacles.
+        :return:
+        """
+        for obstacle in self.obstacles:
+            obstacle.update_vis()
 
     def grid_to_array(self, pos):
         """
