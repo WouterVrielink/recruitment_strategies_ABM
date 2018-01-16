@@ -7,6 +7,7 @@ class Ant(Agent):
     """An agent with fixed legs."""
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
+        self.alive = True
         self.pos = colony.pos
         self.environment = colony.environment
         self.colony = colony
@@ -14,7 +15,10 @@ class Ant(Agent):
         self.last_pos = (-1, -1)
         self.history = [colony.pos]
         self.environment.grid.place_agent(self, self.pos)
-        self.carry_food = False
+        self.carry_food = 0
+        self.carry_capacity = 10
+        self.energy = self.max_energy = 10
+        self.energy_consumption = 0.1
         self.memory = 3
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 1
@@ -29,34 +33,40 @@ class Ant(Agent):
         """
         Do a single time-step. Function called by colony
         """
-        self.encounters = 0
+        if self.alive:
+            self.encounters = 0
 
-        # get the possible positions to move too, and their respective pheromone levels
-        positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
+            # Use energy
+            self.energy -= self.energy_consumption
+            if self.energy <= 0:
+                self.die()
 
-        # store current position and move to the next
-        self.last_pos = self.pos
-        self.move(positions, pheromone_levels)
+            # get the possible positions to move too, and their respective pheromone levels
+            positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
-        # keep track of the ant's encounters
-        self.encounters += self.count_encounters()
+            # store current position and move to the next
+            self.last_pos = self.pos
+            self.move(positions, pheromone_levels)
+            self.encounters += self.count_encounters()
+            # check if the ant is on food
+            if self.on_food:
+                # pick up food
+                if not self.carry_food:
+                    self.environment.food.grid[self.pos] -= self.carry_capacity
+                self.carry_food = self.carry_capacity
+                self.consume(colony=False)
+                self.environment.path_lengths.append(len(self.history)+1)
 
-        # check if the ant is on food
-        if self.on_food:
-            # pick up food
-            if not self.carry_food:
-                self.environment.food.grid[self.pos] -= 1
-            self.carry_food = True
-            self.environment.path_lengths.append(len(self.history)+1)
+            # drop pheromones if carrying food
+            if self.carry_food > 0:
+                self.environment.place_pheromones(self.pos)
 
-        # drop pheromones if carrying food
-        if self.carry_food and self.slowScore == 0:
-            self.environment.place_pheromones(self.pos)
-
-        # if on the colony, drop food and remove history
-        if self.on_colony:
-            self.carry_food = False
-            self.history = [self.pos]
+            # if on the colony, drop food and remove history
+            if self.on_colony:
+                self.colony.stash_food(self.carry_food)
+                self.carry_food = 0
+                self.history = [self.pos]
+                self.consume(colony=True)
 
     def on_obstacle(self):
         """
@@ -170,3 +180,16 @@ class Ant(Agent):
             if type(agent) == type(self):
                 counter += 1
         return counter
+
+    def die(self):
+        self.alive = False
+
+    def consume(self, colony):
+        consumption = self.max_energy - self.energy
+        if colony:
+            self.colony.food_stash -= consumption
+        else:
+            self.environment.food.grid[self.pos] -= consumption
+        self.energy = self.max_energy
+
+
