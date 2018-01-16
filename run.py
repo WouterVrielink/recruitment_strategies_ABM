@@ -1,9 +1,5 @@
 from model import Environment
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import animation
-import matplotlib.patches as patches
-import itertools
 
 
 def compute_then_plot(env, steps):
@@ -22,7 +18,9 @@ def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
+    fig_num = plt.get_fignums()[0]
     for i in range(steps):
+        if not plt.fignum_exists(fig_num): return False
         ants_alive = 0
         for ant in env.schedule.agents:
             if ant.alive:
@@ -36,6 +34,7 @@ def plot_continuous(env, steps=1000):
         # store the state for animation
         env.animate(ax)
         fig.canvas.draw()
+    return True
 
 
 if __name__ == '__main__':
