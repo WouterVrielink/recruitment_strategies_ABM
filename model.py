@@ -1,10 +1,11 @@
 from mesa import Model
+from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from colony import Colony
-
 from obstacle import Obstacle
 from food import FoodGrid
-
+from mesa.datacollection import DataCollector
+import metrics
 import numpy as np
 import random
 from scipy.ndimage import gaussian_filter
@@ -29,7 +30,8 @@ class Environment(Model):
         self.moore = moore
 
         self.grid = MultiGrid(width, height, False)
-        self.colonies = [Colony(self, i, (width//2, height//2), n_ants) for i in range(n_colonies)]
+        self.schedule = RandomActivation(self)
+        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants) for i in range(n_colonies)]
         self.pheromones = np.zeros((width, height), dtype=np.float)
         self.pheromone_level = 1
         self.food = FoodGrid(self)
@@ -41,13 +43,14 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.path_lengths = []
-
+        self.min_path_lengths = []
         self.obstacles = []
         for _ in range(n_obstacles):
             self.obstacles.append(Obstacle(self))
-
-        self.min_path_lengths = []
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
+        self.datacollector = DataCollector(
+            model_reporters={"Minimum path length": metrics.min_path_length},
+            agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths)})
 
         # animation attributes
         self.pheromone_im = None
@@ -58,19 +61,17 @@ class Environment(Model):
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
         are updated per colony in random order.
         """
+        self.datacollector.collect(self)
         # update all colonies
-        for col in random.sample(self.colonies, len(self.colonies)):
-            col.step()
+        # for col in random.sample(self.colonies, len(self.colonies)):
+        #     col.step()
+        self.schedule.step()
         self.update_pheromones()
 
         # update food
         self.food.step()
 
-        # collect data
-        if len(self.path_lengths) > 0:
-            self.min_path_lengths.append(min(self.path_lengths))
-        else:
-            self.min_path_lengths.append(None)
+
 
     def move_agent(self, ant, loc):
         """
@@ -194,9 +195,8 @@ class Environment(Model):
         """
         Update the visualization part of the Ants.
         """
-        for colony in self.colonies:
-            for ant in colony.ant_list.agents:
-                ant.update_vis()
+        for ant in self.schedule.agents:
+            ant.update_vis()
 
     def animate_obstacles(self):
         """

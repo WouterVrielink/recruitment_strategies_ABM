@@ -5,20 +5,22 @@ import matplotlib.pyplot as plt
 def compute_then_plot(env, steps):
     raise NotImplementedError
 
+
 def total_encounters(env):
     counter = 0
-    for colony in env.colonies:
-        for agent in colony.ant_list.agents:
-            counter += agent.encounters
-    return counter/2
 
-def plot_continuous(env, steps = 1000):
+    for agent in env.schedule.agents:
+        counter += agent.encounters
+    return counter / 2
+
+
+def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
     for i in range(steps):
         plt.title('iteration: ' + str(i))
-        plt.pause(0.1)
+        plt.pause(0.001)
 
         # take a step
         env.step()
@@ -37,3 +39,7 @@ if __name__ == '__main__':
 
     # compute_then_plot(env, steps)
     plot_continuous(env, steps=steps)
+    min_paths = env.datacollector.get_model_vars_dataframe()
+    agent_min_paths = env.datacollector.get_agent_vars_dataframe()
+    min_paths.plot()
+    plt.show()

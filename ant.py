@@ -19,7 +19,7 @@ class Ant(Agent):
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 1
         self.slowScore = 0
-
+        self.path_lengths = [np.inf]
         # animation attributes
         self._patch = None
         self.size = 0.4
