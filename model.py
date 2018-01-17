@@ -15,7 +15,7 @@ from ant import Ant
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
 
-    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.99, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
         :param height: int, height of the system

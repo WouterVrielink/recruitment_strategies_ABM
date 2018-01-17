@@ -1,6 +1,7 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
+from mesa.batchrunner import BatchRunner
 from matplotlib import animation
 import matplotlib.patches as patches
 import itertools
@@ -29,7 +30,8 @@ def plot_continuous(env, steps=1000):
         for ant in env.schedule.agents:
             if ant.alive:
                 ants_alive += 1
-        plt.title('iteration: ' + str(i) + " || No. ants: " + str(ants_alive) + "\nFood stash: " + str(env.colonies[0].food_stash))
+        plt.title('iteration: ' + str(i) + " || No. ants: " + str(ants_alive) + "\nFood stash: " + str(
+            env.colonies[0].food_stash))
         plt.pause(0.001)
 
         # take a step
@@ -71,12 +73,19 @@ if __name__ == '__main__':
     steps = 100
     ant_size = 0.4
 
-    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
-                      moore=False)
-    plot_continuous(env, steps)
-    # compute_then_plot(env, steps)
-    # compute_no_plot(env, steps=steps)
-    model_data = env.datacollector.get_model_vars_dataframe()
-    agent_min_paths = env.datacollector.get_agent_vars_dataframe()
-    plot_col(model_data, 'Mean minimum path length')
-    plt.show()
+    var_params = {"n_ants": range(20, 22)}
+    fixed_params = {"width": width, "height": height, "n_colonies": 1,
+                    "n_obstacles": 0, "decay": 0.99, "sigma": 0.2, "moore": False}
+    batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params, max_steps=100,
+                            model_reporters={"n_agents": lambda m: m.schedule.get_agent_count()})
+    batch_run.run_all()
+    print(batch_run.get_model_vars_dataframe())
+    # env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
+    #                   moore=False)
+    # plot_continuous(env, steps)
+    # # compute_then_plot(env, steps)
+    # # compute_no_plot(env, steps=steps)
+    # model_data = env.datacollector.get_model_vars_dataframe()
+    # agent_min_paths = env.datacollector.get_agent_vars_dataframe()
+    # plot_col(model_data, 'Mean minimum path length')
+    # plt.show()
