@@ -50,7 +50,11 @@ class Colony(Agent):
         """
         for i in range(N):
             a = Ant(i, self)
+
+            # Inform environment
+            self.environment.grid.place_agent(a, a.pos)
             self.environment.schedule.add(a)
+
         if N == 1:
             return a
 
