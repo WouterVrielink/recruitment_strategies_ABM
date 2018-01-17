@@ -120,14 +120,15 @@ class Environment(Model):
         """
         self.pheromone_updates.append((pos, self.pheromone_level))
 
-    def get_pheromones(self, pos, id):
+    def get_neighbor_pheromones(self, pos, id):
         """
-        TODO, what does this do?
+        Get the passable neighboring positions and their respective pheromone levels for the pheromone id
         :param pos:
         :param id:
         :return:
         """
         indices = self.grid.get_neighborhood(pos, self.moore)
+        indices = [x for x in indices if not any([isinstance(x, Obstacle) for x in self.grid[x[0]][x[1]]])]
         pheromones = [self.pheromones[x, y] for x, y in indices]
         # tuples = [(loc, p) for loc, p in zip(indices, pheromones)]
         return indices, pheromones

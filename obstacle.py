@@ -5,8 +5,9 @@ import matplotlib.patches as patches
 class Obstacle(Agent):
     """An obstacle kind of agent."""
 
-    def __init__(self, environment, pos=None, cost=10):
+    def __init__(self, environment, pos=None, cost=-1):
         self.environment = environment
+        self.passable = None        # passable set by assigning a cost
         self.cost = cost
         self._patch = None
 
@@ -27,9 +28,13 @@ class Obstacle(Agent):
         return pos == self.pos
 
     @property
-    def passable(self):
-        raise NotImplementedError
-        # return self.cost > 0
+    def cost(self):
+        return self._cost
+
+    @cost.setter
+    def cost(self, new_cost):
+        self._cost = new_cost
+        self.passable = new_cost >= 0
 
     def update_vis(self):
         radius = 0.4
