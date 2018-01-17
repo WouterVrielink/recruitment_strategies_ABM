@@ -15,7 +15,7 @@ from ant import Ant
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
 
-    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.99, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
         :param height: int, height of the system
@@ -73,23 +73,23 @@ class Environment(Model):
         self.schedule.step()
         self.update_pheromones()
 
-    def move_agent(self, ant, loc):
+    def move_agent(self, ant, pos):
         """
         Move an agent across the map.
         :param ant: class Ant
-        :param loc: tuple (x, y)
+        :param pos: tuple (x, y)
         """
         if self.moore:
-            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
+            assert np.sum(np.subtract(pos, ant.pos) ** 2) in [1, 2], \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large".format(ant.pos, loc)
+                "is too large".format(ant.pos, pos)
         else:
-            assert np.sum(np.subtract(loc, ant.pos) ** 2) == 1, \
+            assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
                 "is too large, loc_food {}".format(ant.pos, loc, self.food.get_food_pos())
         self.grid.move_agent(ant, loc)
 
-    def get_random_location(self):
+    def get_random_position(self):
         return (np.random.randint(0, self.width), np.random.randint(0, self.height))
 
     def position_taken(self, pos):
@@ -112,21 +112,22 @@ class Environment(Model):
         """
         self.food.add_food()
 
-    def place_pheromones(self, loc):
+    def place_pheromones(self, pos):
         """
         Add pheromone somewhere on the map
-        :param loc: tuple (x, y)
+        :param pos: tuple (x, y)
         """
-        self.pheromone_updates.append((loc, self.pheromone_level))
+        self.pheromone_updates.append((pos, self.pheromone_level))
 
-    def get_pheromones(self, loc, id):
+    def get_neighbor_pheromones(self, pos, id):
         """
-        TODO, what does this do?
-        :param loc:
+        Get the passable neighboring positions and their respective pheromone levels for the pheromone id
+        :param pos:
         :param id:
         :return:
         """
-        indices = self.grid.get_neighborhood(loc, self.moore)
+        indices = self.grid.get_neighborhood(pos, self.moore)
+        indices = [x for x in indices if not any([isinstance(x, Obstacle) for x in self.grid[x[0]][x[1]]])]
         pheromones = [self.pheromones[x, y] for x, y in indices]
         # tuples = [(loc, p) for loc, p in zip(indices, pheromones)]
         return indices, pheromones
@@ -135,9 +136,9 @@ class Environment(Model):
         """
         Place the pheromones at the end of a timestep on the grid. This is necessary for freeze-dry time-steps
         """
-        for (loc, level) in self.pheromone_updates:
-            # self.pheromones[loc] += level
-            self.pheromones[loc] += 1
+        for (pos, level) in self.pheromone_updates:
+            # self.pheromones[pos] += level
+            self.pheromones[pos] += 1
 
         self.pheromone_updates = []
 
