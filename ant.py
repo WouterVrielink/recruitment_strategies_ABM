@@ -31,7 +31,7 @@ class Ant(Agent):
 
         self.last_steps = [self.pos for _ in range(self.memory)]
 
-        self.path_lengths = [np.inf]
+        self.path_lengths = [np.nan]
 
         # Animation attributes
         self._patch = None
