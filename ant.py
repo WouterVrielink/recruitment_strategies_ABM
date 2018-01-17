@@ -27,7 +27,7 @@ class Ant(Agent):
 
         self.max_energy = np.abs(np.random.normal(15))
         self.energy = self.max_energy
-        self.energy_consumption = np.abs(np.random.normal(0.07 ,0.25)) + 0.01
+        self.energy_consumption = np.abs(np.random.normal(0.07, 0.25)) + 0.01
 
         self.last_steps = [self.pos for _ in range(self.memory)]
 
@@ -66,6 +66,13 @@ class Ant(Agent):
 
             self.path_lengths.append(len(self.history) + 1)
 
+    def check_colony(self):
+        if self.on_colony:
+            self.consume()
+
+            self.colony.stash_food(self.carry_food)
+            self.carry_food = 0
+            self.history = [self.pos]
 
     def step(self):
         """
@@ -75,22 +82,17 @@ class Ant(Agent):
         if not self.alive:
             return
 
-        # Use energy
-        self.step_energy()
-
         # Store current position and move to the next
         self.move()
+
+        # Use energy
+        self.step_energy()
 
         # Check if the agent is on top of food
         self.check_food()
 
-        # if on the colony, drop food and remove history
-        if self.on_colony:
-            self.consume()
-
-            self.colony.stash_food(self.carry_food)
-            self.carry_food = 0
-            self.history = [self.pos]
+        # If on the colony, drop food and remove history
+        self.check_colony()
 
     def on_obstacle(self):
         """
@@ -206,27 +208,31 @@ class Ant(Agent):
 
     def count_encounters(self):
         counter = 0
-        agents = self.environment.grid.get_neighbors(include_center=True, radius = 0, pos=self.pos, moore=self.environment.moore)
+        agents = self.environment.grid.get_neighbors(include_center=True, radius=0, pos=self.pos, moore=self.environment.moore)
         for agent in agents:
             if type(agent) == type(self):
                 counter += 1
         return counter
 
     def die(self):
-        self.alive = False
+        # self.alive = False
+        pass
 
     def consume(self):
         consumption = self.max_energy - self.energy
 
         if self.on_food > 0:
             min_food = min(self.environment.food.grid[self.pos], consumption)
-            self.carry_food -= min_food
+            self.environment.food.grid[self.pos] -= min_food
             self.energy += min_food
-        elif self.on_colony > 0:
+
+        elif self.on_colony:
             min_food = min(self.colony.food_stash, consumption)
-            self.carry_food -= min_food
+            self.colony.food_stash -= min_food
             self.energy += min_food
+
         elif self.carry_food > 0:
             min_food = min(self.carry_food, consumption)
             self.carry_food -= min_food
             self.energy += min_food
+            # TODO: hier zit die gekke bug jwz
