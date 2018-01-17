@@ -50,7 +50,11 @@ class Colony(Agent):
         """
         for i in range(N):
             a = Ant(i, self)
+
+            # Inform environment
+            self.environment.grid.place_agent(a, a.pos)
             self.environment.schedule.add(a)
+
         if N == 1:
             return a
 
@@ -90,7 +94,7 @@ class Colony(Agent):
         self.food_collected += food
 
     def birth(self):
-        chance = np.exp(-2*self.initial_food/self.food_stash)
+        chance = np.exp(-2 * self.initial_food / self.food_stash)
         if np.random.random() <= chance:
             ant = self.add_ants(1)
             self.food_stash -= ant.max_energy

@@ -10,7 +10,7 @@ import numpy as np
 import random
 from scipy.ndimage import gaussian_filter
 from scipy.spatial import distance
-
+from ant import Ant
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
@@ -50,7 +50,8 @@ class Environment(Model):
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
         self.datacollector = DataCollector(
             model_reporters={"Minimum path length": metrics.min_path_length},
-            agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths)})
+            agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths),
+                            "Encounters": Ant.count_encounters})
 
         # animation attributes
         self.pheromone_im = None
@@ -63,16 +64,13 @@ class Environment(Model):
         """
         self.food.step()
         self.datacollector.collect(self)
-        # update all colonies
+
+        # Update all colonies
         for col in random.sample(self.colonies, len(self.colonies)):
             col.step()
+
         self.schedule.step()
         self.update_pheromones()
-
-        # update food
-
-
-
 
     def move_agent(self, ant, loc):
         """
@@ -138,7 +136,7 @@ class Environment(Model):
         """
         for (loc, level) in self.pheromone_updates:
             # self.pheromones[loc] += level
-            self.pheromones[loc] += 1
+            self.pheromones[loc] += 100
 
         self.pheromone_updates = []
 

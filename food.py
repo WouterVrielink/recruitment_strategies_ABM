@@ -46,7 +46,7 @@ class FoodGrid:
         :return:
         """
         food_spots = [self.environment.grid_to_array(pos) for pos in self.get_food_pos()]
-        print(len(food_spots),len(self._patches))
+
         for i in range(max([len(food_spots), len(self._patches)])):
             if i > len(self._patches) - 1:
                 patch = patches.Rectangle(self.environment.grid_to_array(food_spots[i]), 1, 1, linewidth=1, edgecolor='g',
