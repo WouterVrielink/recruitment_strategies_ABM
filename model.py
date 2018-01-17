@@ -14,6 +14,7 @@ from scipy.spatial import distance
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
+
     def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
@@ -42,13 +43,15 @@ class Environment(Model):
         self.sigma = sigma
         self.decay = decay
         self.pheromone_updates = []
+        self.paths = []
         self.obstacles = [Obstacle(self, None, 10) for i in range(n_obstacles)]
         self.obstacles = []
         for _ in range(n_obstacles):
             self.obstacles.append(Obstacle(self))
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
         self.datacollector = DataCollector(
-            model_reporters={"Minimum path length": metrics.min_path_length},
+            model_reporters={"Minimum path length": metrics.min_path_length,
+                             "Mean minimum path length": metrics.mean_min_path_length},
             agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths)})
 
         # animation attributes
@@ -69,8 +72,6 @@ class Environment(Model):
 
         # update food
         self.food.step()
-
-
 
     def move_agent(self, ant, loc):
         """

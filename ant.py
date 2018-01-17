@@ -1,10 +1,11 @@
 import numpy as np
 from mesa import Agent
 import matplotlib.patches as patches
-
+from copy import deepcopy
 
 class Ant(Agent):
     """An agent with fixed legs."""
+
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
         self.pos = colony.pos
@@ -19,18 +20,17 @@ class Ant(Agent):
         self.last_steps = [self.pos for i in range(self.memory)]
         self.persistance = 1
         self.slowScore = 0
-        self.path_lengths = [np.inf]
+        self.path_lengths = [np.nan]
         # animation attributes
         self._patch = None
         self.size = 0.4
-
 
     def step(self):
         """
         Do a single time-step. Function called by colony
         """
         if self.bumped_on_obstacle:
-            self.slowScore = 5 # TODO make this an obstacle variable
+            self.slowScore = 5  # TODO make this an obstacle variable
 
         self.encounters = 0
 
@@ -40,7 +40,7 @@ class Ant(Agent):
         # store current position and move to the next
         self.last_pos = self.pos
         if self.slowScore > 0:
-            self.slowScore -= 1 # don't move
+            self.slowScore -= 1  # don't move
             self.history.append(self.pos)
         else:
             self.move(positions, pheromone_levels)
@@ -51,7 +51,8 @@ class Ant(Agent):
                 if not self.carry_food:
                     self.environment.food.grid[self.pos] -= 1
                 self.carry_food = True
-                self.path_lengths.append(len(self.history)+1)
+                self.path_lengths.append(len(self.history) + 1)
+                self.environment.paths.append(deepcopy(self.history))
 
             # drop pheromones if carrying food
             if self.carry_food:
@@ -122,7 +123,8 @@ class Ant(Agent):
                 direction_probabilities /= sum(direction_probabilities)
 
                 # Combine pheromone and direction bias
-                probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+                probabilities = [p + self.persistance * d for p, d in
+                                 zip(pheromone_probabilities, direction_probabilities)]
 
             # Normalise
             probabilities /= sum(probabilities)
@@ -165,7 +167,8 @@ class Ant(Agent):
 
     def count_encounters(self):
         counter = 0
-        agents = self.environment.grid.get_neighbors(include_center=True, radius = 0, pos=self.pos, moore=self.environment.moore)
+        agents = self.environment.grid.get_neighbors(include_center=True, radius=0, pos=self.pos,
+                                                     moore=self.environment.moore)
         for agent in agents:
             if type(agent) == type(self):
                 counter += 1

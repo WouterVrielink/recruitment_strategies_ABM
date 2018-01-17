@@ -1,7 +1,7 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation
+from matplotlib import animation, transforms
 import matplotlib.patches as patches
 import itertools
 
@@ -34,18 +34,42 @@ def plot_continuous(env, steps=1000):
         fig.canvas.draw()
 
 
+def compute_no_plot(env, steps):
+    for _ in range(steps):
+        env.step()
+
+
+def plot_col(df, col):
+    plt.figure()
+    plt.ylim([0, np.max(df[col])])
+    plt.xlabel('iteration')
+    plt.ylabel(col)
+    df[col].plot()
+
+
+def animate_distribution(path_lengths, steps):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for i in range(steps):
+        ax.clear()
+        t_data = path_lengths.loc[i]
+        t_data = t_data[t_data != np.inf]
+        t_data.hist(ax=ax)
+        plt.pause(0.001)
+
+
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 200
+    steps = 100
     ant_size = 0.4
 
     env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
                       moore=False)
-
+    plot_continuous(env, steps)
     # compute_then_plot(env, steps)
-    plot_continuous(env, steps=steps)
-    min_paths = env.datacollector.get_model_vars_dataframe()
+    compute_no_plot(env, steps=steps)
+    model_data = env.datacollector.get_model_vars_dataframe()
     agent_min_paths = env.datacollector.get_agent_vars_dataframe()
-    min_paths.plot()
+    plot_col(model_data, 'Mean minimum path length')
     plt.show()
