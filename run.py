@@ -1,7 +1,7 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation, transforms
+from matplotlib import animation
 import matplotlib.patches as patches
 import itertools
 
@@ -22,8 +22,14 @@ def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     env.animate(ax)
+    fig_num = plt.get_fignums()[0]
     for i in range(steps):
-        plt.title('iteration: ' + str(i))
+        if not plt.fignum_exists(fig_num): return False
+        ants_alive = 0
+        for ant in env.schedule.agents:
+            if ant.alive:
+                ants_alive += 1
+        plt.title('iteration: ' + str(i) + " || No. ants: " + str(ants_alive) + "\nFood stash: " + str(env.colonies[0].food_stash))
         plt.pause(0.001)
 
         # take a step
@@ -32,6 +38,7 @@ def plot_continuous(env, steps=1000):
         # store the state for animation
         env.animate(ax)
         fig.canvas.draw()
+    return True
 
 
 def compute_no_plot(env, steps):

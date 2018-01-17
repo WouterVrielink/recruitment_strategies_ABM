@@ -1,78 +1,111 @@
 import numpy as np
 from mesa import Agent
 import matplotlib.patches as patches
-from copy import deepcopy
+
 
 class Ant(Agent):
     """An agent with fixed legs."""
 
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
-        self.pos = colony.pos
+
+        # Agent constants
+        self.persistance = 2
+        self.memory = 3
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
-        self.last_pos = (-1, -1)
-        self.history = [colony.pos]
-        self.environment.grid.place_agent(self, self.pos)
-        self.carry_food = False
-        self.memory = 3
-        self.last_steps = [self.pos for i in range(self.memory)]
-        self.persistance = 1
+
+        # Agent attributes
+        self.alive = True
         self.slowScore = 0
+        self.pos = colony.pos
+        self.history = [colony.pos]
+
+        self.carry_food = 0
+        self.carry_capacity = abs(np.random.normal(10))
+
+        self.energy = self.max_energy = abs(np.random.normal(15))
+        self.energy_consumption = np.abs(np.random.normal(0.07,0.25))
+
+        self.last_steps = [self.pos for _ in range(self.memory)]
+
         self.path_lengths = [np.nan]
-        # animation attributes
+
+        # Inform environment
+        self.environment.grid.place_agent(self, self.pos)
+
+        # Animation attributes
         self._patch = None
         self.size = 0.4
+
+    def step_energy(self):
+        """
+        Use energy and check if the agent is now dead.
+        """
+        self.energy -= self.energy_consumption
+
+        if self.energy <= 0:
+            self.die()
+
+    def check_food(self):
+        # check if the ant is on food
+        if self.on_food:
+            # pick up food
+            if not self.carry_food:
+                self.environment.food.grid[self.pos] -= self.carry_capacity
+                print(self.environment.food.grid[self.pos])
+                self.carry_food = self.carry_capacity
+
+            #TODO dit is raar
+            self.consume(colony=False)
+            self.path_lengths.append(len(self.history) + 1)
+
+
 
     def step(self):
         """
         Do a single time-step. Function called by colony
         """
-        if self.bumped_on_obstacle:
-            self.slowScore = 5  # TODO make this an obstacle variable
+        if not self.alive:
+            return
 
         self.encounters = 0
 
-        # get the possible positions to move too, and their respective pheromone levels
+        # Use energy
+        self.step_energy()
+
+        # Get the possible positions to move too, and their respective pheromone levels
         positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
-        # store current position and move to the next
-        self.last_pos = self.pos
-        if self.slowScore > 0:
-            self.slowScore -= 1  # don't move
-            self.history.append(self.pos)
-        else:
-            self.move(positions, pheromone_levels)
-            self.encounters += self.count_encounters()
-            # check if the ant is on food
-            if self.on_food:
-                # pick up food
-                if not self.carry_food:
-                    self.environment.food.grid[self.pos] -= 1
-                self.carry_food = True
-                self.path_lengths.append(len(self.history) + 1)
-                self.environment.paths.append(deepcopy(self.history))
+        # Store current position and move to the next
+        self.move(positions, pheromone_levels)
 
-            # drop pheromones if carrying food
-            if self.carry_food:
-                self.environment.place_pheromones(self.pos)
+        # TODO, waar moet dit heen
+        self.encounters += self.count_encounters()
 
-            # if on the colony, drop food and remove history
-            if self.on_colony:
-                self.carry_food = False
-                self.history = [self.pos]
+        # Check if the agent is on top of food
+        self.check_food()
 
-    @property
-    def bumped_on_obstacle(self):
+        # drop pheromones if carrying food
+        if self.carry_food > 0:
+            self.environment.place_pheromones(self.pos)
+
+        # if on the colony, drop food and remove history
+        if self.on_colony:
+            self.colony.stash_food(self.carry_food)
+            self.carry_food = 0
+            self.history = [self.pos]
+            self.consume(colony=True)
+
+    def on_obstacle(self):
         """
-        Checks if ant is currently at an obstacle.
+        Checks if ant is currently at an obstacle, and returns this obstacle.
         """
-        for i in range(0, len(self.environment.obstacles)):
-            if self.history[-1] != self.environment.obstacles[i].pos and self.pos == self.environment.obstacles[i].pos:
-                return True
-            else:
-                return False
+        for obstacle in self.model.obstacles:
+            if obstacle.on_obstacle(self.pos):
+                return obstacle
+        return False
 
     @property
     def on_colony(self):
@@ -96,43 +129,48 @@ class Ant(Agent):
         where to walk too depending on which positions it can go to, and the pheromone levels of those positions
         :param positions: list of x, y tuples [(x, y), ...]
         :param pheromone_levels: list of floats describing the pheromone level on the respective position
-        :return: the new position (x, y)
         """
-        if self.carry_food:
-            self.environment.move_agent(self, self.history.pop())
-        else:
-            # Calculate pheromone bias
-            pheromone_levels = np.array(pheromone_levels) + 0.1
-            pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
-
-            # Calculate direction bias
-            direction = np.subtract(self.pos, self.last_steps[0])
-            direction_probabilities = np.zeros(len(positions))
-
-            # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
-            for i, pos in enumerate(positions):
-                vecsum = direction + pos
-
-                if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
-                    direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
-
-            # Prevent weird bug (ants going to left bottom)
-            if direction_probabilities.any() == np.zeros(len(positions)).any():
-                probabilities = pheromone_probabilities
+        if self.slowScore == 0:
+            if self.carry_food:
+                self.environment.move_agent(self, self.history.pop())
             else:
-                direction_probabilities /= sum(direction_probabilities)
+                # Calculate pheromone bias
+                pheromone_levels = np.array(pheromone_levels) + 0.1
+                pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
 
-                # Combine pheromone and direction bias
-                probabilities = [p + self.persistance * d for p, d in
-                                 zip(pheromone_probabilities, direction_probabilities)]
+                # Calculate direction bias
+                direction = np.subtract(self.pos, self.last_steps[0])
+                direction_probabilities = np.zeros(len(positions))
 
-            # Normalise
-            probabilities /= sum(probabilities)
+                # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
+                for i, pos in enumerate(positions):
+                    vecsum = direction + pos
 
-            move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+                    if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
+                        direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
 
-            self.environment.move_agent(self, move_to)
-            self.add_pos_to_history()
+                # Prevent weird bug (ants going to left bottom)
+                if direction_probabilities.any() == np.zeros(len(positions)).any():
+                    probabilities = pheromone_probabilities
+                else:
+                    direction_probabilities /= sum(direction_probabilities)
+
+                    # Combine pheromone and direction bias
+                    probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+
+                # Normalise
+                probabilities /= sum(probabilities)
+
+                move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
+
+                self.environment.move_agent(self, move_to)
+                self.add_pos_to_history()
+
+            obstacle = self.on_obstacle()
+            if obstacle:
+                self.slowScore += obstacle.cost
+        else:
+            self.slowScore -= 1
 
     def add_pos_to_history(self):
         """
@@ -159,6 +197,8 @@ class Ant(Agent):
                 self._patch.set_facecolor('g')
             else:
                 self._patch.set_facecolor('w')
+            if not self.alive:
+                self._patch.set_facecolor('black')
             pos = self.environment.grid_to_array(self.pos)
             pos = (pos[0] + (1 - self.size) / 2, pos[1] + (1 - self.size) / 2)
             self._patch.set_xy(pos)
@@ -167,9 +207,19 @@ class Ant(Agent):
 
     def count_encounters(self):
         counter = 0
-        agents = self.environment.grid.get_neighbors(include_center=True, radius=0, pos=self.pos,
-                                                     moore=self.environment.moore)
+        agents = self.environment.grid.get_neighbors(include_center=True, radius = 0, pos=self.pos, moore=self.environment.moore)
         for agent in agents:
             if type(agent) == type(self):
                 counter += 1
         return counter
+
+    def die(self):
+        self.alive = False
+
+    def consume(self, colony):
+        consumption = self.max_energy - self.energy
+        if colony:
+            self.colony.food_stash -= consumption
+        else:
+            self.environment.food.grid[self.pos] -= consumption
+        self.energy = self.max_energy

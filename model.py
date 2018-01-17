@@ -44,7 +44,6 @@ class Environment(Model):
         self.decay = decay
         self.pheromone_updates = []
         self.paths = []
-        self.obstacles = [Obstacle(self, None, 10) for i in range(n_obstacles)]
         self.obstacles = []
         for _ in range(n_obstacles):
             self.obstacles.append(Obstacle(self))
@@ -63,15 +62,18 @@ class Environment(Model):
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
         are updated per colony in random order.
         """
+        self.food.step()
         self.datacollector.collect(self)
         # update all colonies
-        # for col in random.sample(self.colonies, len(self.colonies)):
-        #     col.step()
+        for col in random.sample(self.colonies, len(self.colonies)):
+            col.step()
         self.schedule.step()
         self.update_pheromones()
 
         # update food
-        self.food.step()
+
+
+
 
     def move_agent(self, ant, loc):
         """
