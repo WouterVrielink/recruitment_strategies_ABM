@@ -8,7 +8,8 @@ import itertools
 
 class Colony(Agent):
     """ A Colony which contains a number of ants."""
-    def __init__(self, environment, pheromone_id, pos, N, radius=1, initial_food = 1000):
+
+    def __init__(self, environment, pheromone_id, pos, N, radius=1, initial_food=1000):
         # TODO init the actual agent? (super init)
         self.environment = environment
         self.pheromone_id = pheromone_id
@@ -41,7 +42,6 @@ class Colony(Agent):
         Advance each ant in this colony by one time-step.
         '''
         self.birth()
-
 
     def add_ants(self, N):
         """
@@ -83,7 +83,7 @@ class Colony(Agent):
                 pos = np.add(self.pos, (x, y))
                 if self.on_colony(pos):
                     patch = patches.Rectangle(self.environment.grid_to_array(pos), 1, 1, linewidth=1, edgecolor='r',
-                                                  facecolor='r', fill=True, zorder=1)
+                                              facecolor='r', fill=True, zorder=1)
                     self._patches.append(patch)
                     self.environment.ax.add_patch(patch)
 
@@ -98,7 +98,6 @@ class Colony(Agent):
         if np.random.random() <= chance:
             ant = self.add_ants(1)
             self.food_stash -= ant.max_energy
-
 
     def __exit__(self):
         """

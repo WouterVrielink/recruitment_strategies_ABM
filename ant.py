@@ -64,7 +64,7 @@ class Ant(Agent):
 
                 self.carry_food += min_pickup
 
-            self.environment.path_lengths.append(len(self.history) + 1)
+            self.path_lengths.append(len(self.history) + 1)
 
 
     def step(self):

@@ -14,6 +14,7 @@ from ant import Ant
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
+
     def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False):
         """
         :param width: int, width of the system
@@ -42,14 +43,14 @@ class Environment(Model):
         self.sigma = sigma
         self.decay = decay
         self.pheromone_updates = []
-        self.path_lengths = []
-        self.min_path_lengths = []
+        self.paths = []
         self.obstacles = []
         for _ in range(n_obstacles):
             self.obstacles.append(Obstacle(self))
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
         self.datacollector = DataCollector(
-            model_reporters={"Minimum path length": metrics.min_path_length},
+            model_reporters={"Minimum path length": metrics.min_path_length,
+                             "Mean minimum path length": metrics.mean_min_path_length},
             agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths),
                             "Encounters": Ant.count_encounters})
 
@@ -136,7 +137,7 @@ class Environment(Model):
         """
         for (loc, level) in self.pheromone_updates:
             # self.pheromones[loc] += level
-            self.pheromones[loc] += 100
+            self.pheromones[loc] += 1
 
         self.pheromone_updates = []
 
