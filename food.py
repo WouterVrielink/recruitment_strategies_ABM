@@ -17,7 +17,7 @@ class FoodGrid:
         """
         When there is no more food left on the map, add one food location.
         """
-        if len(np.where(self.grid > 0)) == 0:
+        if len(np.where(self.grid > 0)[0]) == 0:
             self.add_food()
 
     def add_food(self, xy=None):
@@ -31,7 +31,7 @@ class FoodGrid:
             y = np.random.randint(0, self.height, 1)[0]
             if not any([colony.on_colony((x, y)) for colony in self.environment.colonies]):
                 xy = (x, y)
-        self.grid[xy] += 100000
+        self.grid[xy] += 1
 
     def get_food_pos(self):
         """
@@ -46,18 +46,17 @@ class FoodGrid:
         :return:
         """
         food_spots = [self.environment.grid_to_array(pos) for pos in self.get_food_pos()]
-        print(len(food_spots),len(self._patches))
         for i in range(max([len(food_spots), len(self._patches)])):
             if i > len(self._patches) - 1:
                 patch = patches.Rectangle(self.environment.grid_to_array(food_spots[i]), 1, 1, linewidth=1, edgecolor='g',
                                           facecolor='g', fill=True, zorder=1)
                 self._patches.append(patch)
                 self.environment.ax.add_patch(patch)
-            elif i > len(self._patches):
+            elif i > len(food_spots) - 1:
                 self._patches[i].remove()
+                self._patches.pop(i)
             else:
                 self._patches[i].set_xy(food_spots[i])
-
 
         return self._patches
 
