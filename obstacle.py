@@ -13,10 +13,10 @@ class Obstacle(Agent):
         # make sure that obstacle can't be at same place as food or colony
         # TODO: obstacle should not be placed on colony or obstacle itself
         if pos == None:
-            pos = self.environment.get_random_location()
+            pos = self.environment.get_random_position()
 
             while(self.environment.position_taken(pos)):
-                pos = self.environment.get_random_location()
+                pos = self.environment.get_random_position()
 
         self.pos = pos
 
