@@ -70,14 +70,14 @@ def animate_distribution(path_lengths, steps):
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 100
+    steps = 1000
     ant_size = 0.4
 
-    var_params = {"n_ants": range(20, 22)}
+    var_params = {"n_ants": range(20, 22), 'sigma': np.arange(0, 1, 0.2)}
     fixed_params = {"width": width, "height": height, "n_colonies": 1,
-                    "n_obstacles": 0, "decay": 0.99, "sigma": 0.2, "moore": False}
+                    "n_obstacles": 0, "decay": 0.99, "moore": False}
     batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params, max_steps=100,
-                            model_reporters={"n_agents": lambda m: m.schedule.get_agent_count()})
+                            model_reporters={"n_agents": lambda m: m.schedule.get_agent_count()}, iterations=5)
     batch_run.run_all()
     print(batch_run.get_model_vars_dataframe())
     # env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
