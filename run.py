@@ -68,14 +68,14 @@ def animate_distribution(path_lengths, steps):
 if __name__ == '__main__':
     width = 20
     height = 20
-    steps = 100
+    steps = 1000
     ant_size = 0.4
 
     env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
                       moore=False)
     plot_continuous(env, steps)
     # compute_then_plot(env, steps)
-    compute_no_plot(env, steps=steps)
+    # compute_no_plot(env, steps=steps)
     model_data = env.datacollector.get_model_vars_dataframe()
     agent_min_paths = env.datacollector.get_agent_vars_dataframe()
     plot_col(model_data, 'Mean minimum path length')
