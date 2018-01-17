@@ -5,18 +5,19 @@ import matplotlib.patches as patches
 class Obstacle(Agent):
     """An obstacle kind of agent."""
 
-    def __init__(self, environment, pos=None, cost=10):
+    def __init__(self, environment, pos=None, cost=-1):
         self.environment = environment
+        self.passable = None        # passable set by assigning a cost
         self.cost = cost
         self._patch = None
 
         # make sure that obstacle can't be at same place as food or colony
         # TODO: obstacle should not be placed on colony or obstacle itself
         if pos == None:
-            pos = self.environment.get_random_location()
+            pos = self.environment.get_random_position()
 
             while(self.environment.position_taken(pos)):
-                pos = self.environment.get_random_location()
+                pos = self.environment.get_random_position()
 
         self.pos = pos
 
@@ -27,9 +28,13 @@ class Obstacle(Agent):
         return pos == self.pos
 
     @property
-    def passable(self):
-        raise NotImplementedError
-        # return self.cost > 0
+    def cost(self):
+        return self._cost
+
+    @cost.setter
+    def cost(self, new_cost):
+        self._cost = new_cost
+        self.passable = new_cost >= 0
 
     def update_vis(self):
         radius = 0.4

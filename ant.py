@@ -1,6 +1,7 @@
 import numpy as np
 from mesa import Agent
 import matplotlib.patches as patches
+from obstacle import Obstacle
 
 
 class Ant(Agent):
@@ -92,14 +93,12 @@ class Ant(Agent):
             self.carry_food = 0
             self.history = [self.pos]
 
+    @property
     def on_obstacle(self):
         """
         Checks if ant is currently at an obstacle, and returns this obstacle.
         """
-        for obstacle in self.model.obstacles:
-            if obstacle.on_obstacle(self.pos):
-                return obstacle
-        return False
+        return any([isinstance(x, Obstacle) for x in self.environment.grid[self.pos[0]][self.pos[1]]])
 
     @property
     def on_colony(self):
@@ -131,7 +130,7 @@ class Ant(Agent):
 
             else:
                 # Get the possible positions to move too, and their respective pheromone levels
-                positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
+                positions, pheromone_levels = self.environment.get_neighbor_pheromones(self.pos, self.pheromone_id)
 
                 # Calculate pheromone bias
                 pheromone_levels = np.array(pheromone_levels) + 0.1
@@ -165,9 +164,8 @@ class Ant(Agent):
                 self.environment.move_agent(self, move_to)
                 self.add_pos_to_history()
 
-            obstacle = self.on_obstacle()
-            if obstacle:
-                self.slowScore += obstacle.cost
+            if self.on_obstacle:
+                self.slowScore += [x for x in self.environment.grid[self.pos[0]][self.pos[1]] if isinstance(x, Obstacle)][0].cost
         else:
             self.slowScore -= 1
 
