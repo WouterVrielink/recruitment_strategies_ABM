@@ -15,7 +15,6 @@ class Ant(Agent):
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
 
-
         # Agent attributes
         self.alive = True
         self.slowScore = 0
@@ -39,45 +38,63 @@ class Ant(Agent):
         self._patch = None
         self.size = 0.4
 
+    def step_energy(self):
+        """
+        Use energy and check if the agent is now dead.
+        """
+        self.energy -= self.energy_consumption
+
+        if self.energy <= 0:
+            self.die()
+
+    def check_food(self):
+        # check if the ant is on food
+        if self.on_food:
+            # pick up food
+            if not self.carry_food:
+                self.environment.food.grid[self.pos] -= self.carry_capacity
+                print(self.environment.food.grid[self.pos])
+                self.carry_food = self.carry_capacity
+
+            #TODO dit is raar
+            self.consume(colony=False)
+            self.environment.path_lengths.append(len(self.history) + 1)
+
 
     def step(self):
         """
         Do a single time-step. Function called by colony
         """
-        if self.alive:
-            self.encounters = 0
+        if not self.alive:
+            return
 
-            # Use energy
-            self.energy -= self.energy_consumption
-            if self.energy <= 0:
-                self.die()
+        self.encounters = 0
 
-            # get the possible positions to move too, and their respective pheromone levels
-            positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
+        # Use energy
+        self.step_energy()
 
-            # store current position and move to the next
-            self.move(positions, pheromone_levels)
-            self.encounters += self.count_encounters()
-            # check if the ant is on food
-            if self.on_food:
-                # pick up food
-                if not self.carry_food:
-                    self.environment.food.grid[self.pos] -= self.carry_capacity
-                    print(self.environment.food.grid[self.pos])
-                self.carry_food = self.carry_capacity
-                self.consume(colony=False)
-                self.environment.path_lengths.append(len(self.history)+1)
+        # Get the possible positions to move too, and their respective pheromone levels
+        positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
-            # drop pheromones if carrying food
-            if self.carry_food > 0:
-                self.environment.place_pheromones(self.pos)
+        # Store current position and move to the next
+        self.move(positions, pheromone_levels)
 
-            # if on the colony, drop food and remove history
-            if self.on_colony:
-                self.colony.stash_food(self.carry_food)
-                self.carry_food = 0
-                self.history = [self.pos]
-                self.consume(colony=True)
+        # TODO, waar moet dit heen
+        self.encounters += self.count_encounters()
+
+        # Check if the agent is on top of food
+        self.check_food()
+
+        # drop pheromones if carrying food
+        if self.carry_food > 0:
+            self.environment.place_pheromones(self.pos)
+
+        # if on the colony, drop food and remove history
+        if self.on_colony:
+            self.colony.stash_food(self.carry_food)
+            self.carry_food = 0
+            self.history = [self.pos]
+            self.consume(colony=True)
 
     def on_obstacle(self):
         """
