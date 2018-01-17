@@ -7,24 +7,35 @@ class Ant(Agent):
     """An agent with fixed legs."""
     def __init__(self, unique_id, colony):
         super().__init__(unique_id, colony.environment)
-        self.alive = True
-        self.pos = colony.pos
+
+        # Agent constants
+        self.persistance = 2
+        self.memory = 3
         self.environment = colony.environment
         self.colony = colony
         self.pheromone_id = colony.pheromone_id
-        self.last_pos = (-1, -1)
+
+
+        # Agent attributes
+        self.alive = True
+        self.slowScore = 0
+        self.pos = colony.pos
         self.history = [colony.pos]
-        self.environment.grid.place_agent(self, self.pos)
+
         self.carry_food = 0
         self.carry_capacity = abs(np.random.normal(10))
+
         self.energy = self.max_energy = abs(np.random.normal(15))
         self.energy_consumption = np.abs(np.random.normal(0.07,0.25))
-        self.memory = 3
-        self.last_steps = [self.pos for i in range(self.memory)]
-        self.persistance = 2
-        self.slowScore = 0
+
+        self.last_steps = [self.pos for _ in range(self.memory)]
+
         self.path_lengths = [np.inf]
-        # animation attributes
+
+        # Inform environment
+        self.environment.grid.place_agent(self, self.pos)
+
+        # Animation attributes
         self._patch = None
         self.size = 0.4
 
@@ -45,7 +56,6 @@ class Ant(Agent):
             positions, pheromone_levels = self.environment.get_pheromones(self.pos, self.pheromone_id)
 
             # store current position and move to the next
-            self.last_pos = self.pos
             self.move(positions, pheromone_levels)
             self.encounters += self.count_encounters()
             # check if the ant is on food
@@ -194,5 +204,3 @@ class Ant(Agent):
         else:
             self.environment.food.grid[self.pos] -= consumption
         self.energy = self.max_energy
-
-
