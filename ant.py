@@ -24,11 +24,12 @@ class Ant(Agent):
         self.history = [colony.pos]
         self.encounters = 0
 
+        self.return_to_colony = False
         self.carry_food = 0
         self.carry_capacity = np.abs(np.random.normal(10))
         self.max_energy = np.abs(np.random.normal(15))
         self.energy = self.max_energy
-        self.energy_consumption = np.abs(np.random.normal(0.07, 0.25)) + 0.01
+        self.energy_consumption = np.abs(np.random.normal(0.05, 0.05)) + 0.01
 
 
         self.last_steps = [self.pos for _ in range(self.memory)]
@@ -52,6 +53,7 @@ class Ant(Agent):
             if self.energy <= 0:
                 self.die()
 
+
     def check_food(self):
         # check if the ant is on food
         if self.on_food:
@@ -68,6 +70,7 @@ class Ant(Agent):
                 self.carry_food += min_pickup
 
             self.path_lengths.append(len(self.history) + 1)
+            self.return_to_colony = True
 
     def check_colony(self):
         if self.on_colony:
@@ -77,6 +80,7 @@ class Ant(Agent):
             self.colony.stash_food(self.carry_food)
             self.carry_food = 0
             self.history = [self.pos]
+            self.return_to_colony = False
 
     def step(self):
         """
@@ -98,6 +102,10 @@ class Ant(Agent):
 
         # If on the colony, drop food and remove history
         self.check_colony()
+
+        if self.energy < self.max_energy / 2 and not self.return_to_colony and not self.colony.food_stash == 0:
+            self.history.pop()
+            self.return_to_colony = True
 
     @property
     def on_obstacle(self):
@@ -131,7 +139,7 @@ class Ant(Agent):
         :param pheromone_levels: list of floats describing the pheromone level on the respective position
         """
         if self.slowScore == 0:
-            if self.carry_food:
+            if self.carry_food or self.return_to_colony:
                 self.environment.move_agent(self, self.history.pop())
                 self.environment.place_pheromones(self.pos)
 
@@ -221,8 +229,8 @@ class Ant(Agent):
         return counter
 
     def die(self):
-        # self.alive = False
-        pass
+        self.alive = False
+        # pass
 
     def consume(self):
         consumption = self.max_energy - self.energy
