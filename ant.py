@@ -6,11 +6,11 @@ from obstacle import Obstacle
 
 class Ant(Agent):
     """An agent with fixed legs."""
-    def __init__(self, unique_id, colony):
+    def __init__(self, unique_id, colony, death=True):
         super().__init__(unique_id, colony.environment)
 
         # Agent constants
-        self.persistance = 2
+        self.persistance = 0
         self.memory = 3
         self.environment = colony.environment
         self.colony = colony
@@ -18,6 +18,7 @@ class Ant(Agent):
 
         # Agent attributes
         self.alive = True
+        self.death = death
         self.slowScore = 0
         self.pos = colony.pos
         self.history = [colony.pos]
@@ -26,10 +27,10 @@ class Ant(Agent):
         self.return_to_colony = False
         self.carry_food = 0
         self.carry_capacity = np.abs(np.random.normal(10))
-
         self.max_energy = np.abs(np.random.normal(15))
         self.energy = self.max_energy
         self.energy_consumption = np.abs(np.random.normal(0.05, 0.05)) + 0.01
+
 
         self.last_steps = [self.pos for _ in range(self.memory)]
 
@@ -56,7 +57,8 @@ class Ant(Agent):
     def check_food(self):
         # check if the ant is on food
         if self.on_food:
-            self.consume()
+            if self.death:
+                self.consume()
 
             # pick up food
             if self.carry_food < self.carry_capacity:
@@ -72,7 +74,8 @@ class Ant(Agent):
 
     def check_colony(self):
         if self.on_colony:
-            self.consume()
+            if self.death:
+                self.consume()
 
             self.colony.stash_food(self.carry_food)
             self.carry_food = 0
@@ -91,7 +94,8 @@ class Ant(Agent):
         self.move()
 
         # Use energy
-        self.step_energy()
+        if not self.death:
+            self.step_energy()
 
         # Check if the agent is on top of food
         self.check_food()
@@ -127,6 +131,7 @@ class Ant(Agent):
         return self.environment.food.grid[self.pos] > 0
 
     def move(self):
+
         """
         Move the ant around the grid. If the ant is carrying food it walks back its original path, otherwise it decides
         where to walk too depending on which positions it can go to, and the pheromone levels of those positions
@@ -145,29 +150,32 @@ class Ant(Agent):
                 # Calculate pheromone bias
                 pheromone_levels = np.array(pheromone_levels) + 0.1
                 pheromone_probabilities = pheromone_levels / sum(pheromone_levels)
+                if self.persistance:
+                    # Calculate direction bias
+                    direction = np.subtract(self.pos, self.last_steps[0])
+                    direction_probabilities = np.zeros(len(positions))
 
-                # Calculate direction bias
-                direction = np.subtract(self.pos, self.last_steps[0])
-                direction_probabilities = np.zeros(len(positions))
+                    # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
+                    for i, pos in enumerate(positions):
+                        vecsum = direction + pos
 
-                # Use the length of the summed vector to see if the angle is smaller than 40-ish degrees
-                for i, pos in enumerate(positions):
-                    vecsum = direction + pos
+                        if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
+                            direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
 
-                    if vecsum[0] ** 2 + vecsum[1] ** 2 > 2.1:
-                        direction_probabilities[i] = np.dot(direction, np.subtract(pos, self.last_steps[0]))
+                    # Prevent weird bug (ants going to left bottom)
+                    if direction_probabilities.any() == np.zeros(len(positions)).any():
+                        probabilities = pheromone_probabilities
+                    else:
+                        direction_probabilities /= sum(direction_probabilities)
 
-                # Prevent weird bug (ants going to left bottom)
-                if direction_probabilities.any() == np.zeros(len(positions)).any():
-                    probabilities = pheromone_probabilities
+                        # Combine pheromone and direction bias
+                        probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
+                        # Normalise
+                        probabilities /= sum(probabilities)
                 else:
-                    direction_probabilities /= sum(direction_probabilities)
+                    probabilities = pheromone_probabilities
 
-                    # Combine pheromone and direction bias
-                    probabilities = [p + self.persistance * d for p, d in zip(pheromone_probabilities, direction_probabilities)]
-
-                # Normalise
-                probabilities /= sum(probabilities)
+                
 
                 move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 

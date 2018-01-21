@@ -9,7 +9,7 @@ import itertools
 class Colony(Agent):
     """ A Colony which contains a number of ants."""
 
-    def __init__(self, environment, pheromone_id, pos, N, radius=1, initial_food=1000):
+    def __init__(self, environment, pheromone_id, pos, N, radius=1, initial_food = 1000, birth=True, death=True):
         # TODO init the actual agent? (super init)
         self.environment = environment
         self.pheromone_id = pheromone_id
@@ -19,13 +19,13 @@ class Colony(Agent):
         self.food_stash = initial_food
         self.food_collected = 0
         self.initial_food = initial_food
-
+        self.birth = birth
+        self.death = death
         # Create agents
         self.add_ants(N)
 
         # Register self
         self.environment.grid.place_agent(self, self.pos)
-
         # Animation attributes
         self._patches = []
 
@@ -41,7 +41,8 @@ class Colony(Agent):
         '''
         Advance each ant in this colony by one time-step.
         '''
-        self.birth()
+        if self.birth:
+            self.ant_birth()
 
     def add_ants(self, N):
         """
@@ -49,9 +50,7 @@ class Colony(Agent):
         :param N: integer value which specifies the nr of ants to add
         """
         for i in range(N):
-            a = Ant(i, self)
-
-            # Inform environment
+            a = Ant(i, self, death=self.death)
             self.environment.grid.place_agent(a, a.pos)
             self.environment.schedule.add(a)
 
@@ -93,8 +92,9 @@ class Colony(Agent):
         self.food_stash += food
         self.food_collected += food
 
-    def birth(self):
-        chance = np.exp(-2 * self.initial_food / self.food_stash)
+
+    def ant_birth(self):
+        chance = np.exp(-2*self.initial_food/self.food_stash)
         if np.random.random() <= chance:
             ant = self.add_ants(1)
             self.food_stash -= ant.max_energy

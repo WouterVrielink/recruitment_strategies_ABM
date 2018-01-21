@@ -22,10 +22,15 @@ def total_encounters(env):
 def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    env.animate(ax)
-    fig_num = plt.get_fignums()[0]
+    # env.animate(ax)
+    # fig_num = plt.get_fignums()[0]
     for i in range(steps):
-        if not plt.fignum_exists(fig_num): return False
+        if i%25 == 0:
+            pher_above_thres = env.pheromone_threshold(0.5)
+            path = env.find_path(pher_above_thres)
+            if path[0] != []:
+                print("We have found a path after ",i)
+        #if not plt.fignum_exists(fig_num): return False
         ants_alive = 0
         for ant in env.schedule.agents:
             if ant.alive:
@@ -36,10 +41,10 @@ def plot_continuous(env, steps=1000):
 
         # take a step
         env.step()
-        number_of_encounters = total_encounters(env)
+        #number_of_encounters = total_encounters(env)
         # store the state for animation
-        env.animate(ax)
-        fig.canvas.draw()
+        # env.animate(ax)
+        # fig.canvas.draw()
     return True
 
 
@@ -88,4 +93,3 @@ if __name__ == '__main__':
     # model_data = env.datacollector.get_model_vars_dataframe()
     # agent_min_paths = env.datacollector.get_agent_vars_dataframe()
     # plot_col(model_data, 'Mean minimum path length')
-    # plt.show()

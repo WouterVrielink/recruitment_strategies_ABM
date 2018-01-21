@@ -11,11 +11,13 @@ import random
 from scipy.ndimage import gaussian_filter
 from scipy.spatial import distance
 from ant import Ant
+from copy import copy
+from numba import jit
+
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-
-    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.99, sigma=0.1, moore=False):
+    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False, birth=True, death=True):
         """
         :param width: int, width of the system
         :param height: int, height of the system
@@ -30,9 +32,12 @@ class Environment(Model):
         self.height = height
         self.moore = moore
 
+        self.birth = birth
+        self.death = death
+
         self.grid = MultiGrid(width, height, False)
         self.schedule = RandomActivation(self)
-        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants) for i in range(n_colonies)]
+        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants, birth=self.birth, death=self.death) for i in range(n_colonies)]
         self.pheromones = np.zeros((width, height), dtype=np.float)
         self.pheromone_level = 1
         self.food = FoodGrid(self)
@@ -80,7 +85,7 @@ class Environment(Model):
         :param pos: tuple (x, y)
         """
         if self.moore:
-            assert np.sum(np.subtract(pos, ant.pos) ** 2) in [1, 2], \
+            assert np.sum(np.subtract(loc, ant.pos) ** 2) in [1, 2], \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
                 "is too large".format(ant.pos, pos)
         else:
@@ -139,7 +144,6 @@ class Environment(Model):
         for (pos, level) in self.pheromone_updates:
             # self.pheromones[pos] += level
             self.pheromones[pos] += 1
-
         self.pheromone_updates = []
 
         # convolution by convolve 2d, uses self.diff_kernel
@@ -214,3 +218,47 @@ class Environment(Model):
         :return: tuple (float: x, float: y)
         """
         return pos[0] - 0.5, self.height - pos[1] - 1.5
+
+    def pheromone_threshold(self, threshold):
+        """ Returns an array of the positions in the grid in which
+        the pheromone levels are above the given threshold"""
+        pher_above_thres = np.where(self.pheromones >= threshold)
+        return list(zip(pher_above_thres[0],pher_above_thres[1]))
+
+
+    def find_path(self, pher_above_thres):
+        """ Returns the shortest paths from all the colonies to all the food sources.
+        A path can only use the positions in the given array. Therefore, this function
+        checks whether there is a possible path for a certain pheremone level.
+        Essentially a breadth first search"""
+        space_searched = False
+        all_paths = []
+        food_sources = self.food.get_food_pos()
+        # Search the paths for a colony to all food sources
+        for colony in self.colonies:
+            colony_paths = []
+            pos_list = {colony.pos} # Prooning
+            possible_paths = [[colony.pos]]
+            # Continue expanding search area until all food sources found
+            # or until the entire space is searched
+            while food_sources != [] and not space_searched:
+                space_searched = True
+                temp = []
+                for path in possible_paths:
+                    for neighbor in self.grid.get_neighborhood(include_center=False, radius=1, pos=path[-1], moore=self.moore):
+                        if neighbor in food_sources:
+                            food_path = copy(path)
+                            food_path.append(neighbor)
+                            colony_paths.append(food_path)
+                            food_sources.remove(neighbor)
+                        # Add epanded paths to the possible paths
+                        if neighbor in pher_above_thres and neighbor not in pos_list:
+                            space_searched = False
+                            temp_path = copy(path)
+                            temp_path.append(neighbor)
+                            temp.append(temp_path)
+                            pos_list.add(neighbor)
+                    possible_paths.remove(path)
+                possible_paths += temp
+        all_paths.append(colony_paths)
+        return all_paths
