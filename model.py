@@ -86,8 +86,8 @@ class Environment(Model):
         else:
             assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large, loc_food {}".format(ant.pos, loc, self.food.get_food_pos())
-        self.grid.move_agent(ant, loc)
+                "is too large, loc_food {}".format(ant.pos, pos, self.food.get_food_pos())
+        self.grid.move_agent(ant, pos)
 
     def get_random_position(self):
         return (np.random.randint(0, self.width), np.random.randint(0, self.height))
