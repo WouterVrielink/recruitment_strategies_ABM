@@ -28,30 +28,39 @@ class Environment(Model):
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
         super().__init__()
-        self.width = width
-        self.height = height
-        self.moore = moore
 
+        # Agent variables
         self.birth = birth
         self.death = death
 
-        self.grid = MultiGrid(width, height, False)
-        self.schedule = RandomActivation(self)
-        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants, birth=self.birth, death=self.death) for i in range(n_colonies)]
-        self.pheromones = np.zeros((width, height), dtype=np.float)
         self.pheromone_level = 1
-        self.food = FoodGrid(self)
-        self.food.add_food()
-        self.diff_kernel = np.array(
-            [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 4, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])
-        self.diff_kernel = self.diff_kernel / np.sum(self.diff_kernel) * decay
+
+        # Environment variables
+        self.width = width
+        self.height = height
+        self.grid = MultiGrid(width, height, False)
+
+        self.moore = moore
+
         self.sigma = sigma
         self.decay = decay
+
+        # Environment attributes
+        self.schedule = RandomActivation(self)
+
+        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants, birth=self.birth, death=self.death) for i in range(n_colonies)]
+
+        self.pheromones = np.zeros((width, height), dtype=np.float)
         self.pheromone_updates = []
-        self.paths = []
+
+        self.food = FoodGrid(self)
+        self.food.add_food()
+
         self.obstacles = []
         for _ in range(n_obstacles):
             self.obstacles.append(Obstacle(self))
+
+        # Metric + data collection
         self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
         self.datacollector = DataCollector(
             model_reporters={"Minimum path length": metrics.min_path_length,
@@ -59,7 +68,7 @@ class Environment(Model):
             agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths),
                             "Encounters": Ant.count_encounters})
 
-        # animation attributes
+        # Animation attributes
         self.pheromone_im = None
         self.ax = None
 
@@ -145,9 +154,6 @@ class Environment(Model):
             # self.pheromones[pos] += level
             self.pheromones[pos] += 1
         self.pheromone_updates = []
-
-        # convolution by convolve 2d, uses self.diff_kernel
-        # self.pheromones = signal.convolve2d(self.pheromones, self.diff_kernel, mode='same')
 
         # gaussian convolution using self.sigma
         self.pheromones = gaussian_filter(self.pheromones, self.sigma) * self.decay

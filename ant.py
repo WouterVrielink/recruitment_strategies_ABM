@@ -31,7 +31,6 @@ class Ant(Agent):
         self.energy = self.max_energy
         self.energy_consumption = np.abs(np.random.normal(0.05, 0.05)) + 0.01
 
-
         self.last_steps = [self.pos for _ in range(self.memory)]
 
         self.path_lengths = [np.nan]
@@ -103,9 +102,10 @@ class Ant(Agent):
         # If on the colony, drop food and remove history
         self.check_colony()
 
-        if self.energy < self.max_energy / 2 and not self.return_to_colony and not self.colony.food_stash == 0:
-            self.history.pop()
-            self.return_to_colony = True
+        if self.death:
+            if self.energy < self.max_energy / 2 and not self.return_to_colony and not self.colony.food_stash == 0:
+                self.history.pop()
+                self.return_to_colony = True
 
     @property
     def on_obstacle(self):
@@ -175,7 +175,7 @@ class Ant(Agent):
                 else:
                     probabilities = pheromone_probabilities
 
-                
+
 
                 move_to = positions[np.random.choice(np.arange(len(positions)), p=probabilities)]
 
@@ -230,7 +230,6 @@ class Ant(Agent):
 
     def die(self):
         self.alive = False
-        # pass
 
     def consume(self):
         consumption = self.max_energy - self.energy
@@ -249,4 +248,3 @@ class Ant(Agent):
             min_food = min(self.carry_food, consumption)
             self.carry_food -= min_food
             self.energy += min_food
-            # TODO: hier zit die gekke bug jwz
