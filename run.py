@@ -22,19 +22,24 @@ def total_encounters(env):
 def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    # env.animate(ax)
-    # fig_num = plt.get_fignums()[0]
+
+    env.animate(ax)
+    fig_num = plt.get_fignums()[0]
+
     for i in range(steps):
-        if i%25 == 0:
+        if not i % 25:
             pher_above_thres = env.pheromone_threshold(0.5)
             path = env.find_path(pher_above_thres)
             if path[0] != []:
                 print("We have found a path after ",i)
-        #if not plt.fignum_exists(fig_num): return False
+
+        if not plt.fignum_exists(fig_num): return False
+
         ants_alive = 0
         for ant in env.schedule.agents:
             if ant.alive:
                 ants_alive += 1
+
         plt.title('iteration: ' + str(i) + " || No. ants: " + str(ants_alive) + "\nFood stash: " + str(
             env.colonies[0].food_stash))
         plt.pause(0.001)
@@ -42,9 +47,10 @@ def plot_continuous(env, steps=1000):
         # take a step
         env.step()
         #number_of_encounters = total_encounters(env)
+
         # store the state for animation
-        # env.animate(ax)
-        # fig.canvas.draw()
+        env.animate(ax)
+        fig.canvas.draw()
     return True
 
 
