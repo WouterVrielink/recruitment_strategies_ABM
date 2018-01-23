@@ -8,7 +8,9 @@ def plot_p_fl(df):
     """Creates the p vs (f + l) plot"""
 
     plt.figure()
-    plt.plot(df['pheromone'], df['followers'] + df['leaders'])
+    plt.scatter(df['pheromone'], df['followers'] + df['leaders'])
+    plt.xlabel(r'$p$')
+    plt.ylabel(r'$f + l$')
     plt.show()
 
 
