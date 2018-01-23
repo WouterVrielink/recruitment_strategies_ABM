@@ -6,7 +6,7 @@ from ant import Ant
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, g=10, w=10, h=10, role_division = (100,0,5,5), moore=False):
+    def __init__(self, N=100, g=10, w=10, h=10, p_u=1, p_ul=1, p_up=1, p_fl=1, role_division = (100,0,5,5), moore=False):
         """
 
         :param g: amount of ants possible in a following group of ants
@@ -64,7 +64,7 @@ class Environment(Model):
         else:
             assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large, loc_food {}".format(ant.pos, pos, self.food.get_food_pos())
+                "is too large, pos_food {}".format(ant.pos, pos, self.food.get_food_pos())
 
         self.grid.move_agent(ant, pos)
 
