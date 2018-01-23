@@ -11,9 +11,12 @@ from scipy.spatial import distance
 
 from ant import Ant
 
+    # var_params = {"N": np.arange(10, 100, 10)}
+    # fixed_params = {"g": 10, "w": 50, "h": 50, "p_uf": 0.5, "p_ul": 0.5, "p_up": 0.5, "p_fl": 0.5}
+
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, g, w, h, role_division = (100,0,5,5), moore=False):
+    def __init__(self, N, g, w, h, p_uf, p_ul, p_up, p_fl, role_division = (100,0,5,5), moore=False):
         """
 
         :param g: amount of ants possible in a following group of ants
@@ -25,10 +28,10 @@ class Environment(Model):
         super().__init__()
 
         # Environment variables
-        self.width = width
-        self.height = height
+        self.width = w
+        self.height = h
         self.moore = moore
-        self.grid = MultiGrid(width, height, False)
+        self.grid = MultiGrid(w, h, False)
 
         # Environment attributes
         self.schedule = RandomActivation(self)
