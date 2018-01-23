@@ -6,15 +6,18 @@ from mesa.space import MultiGrid
 
 from ant import Ant
 
+
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, N=100, g=10, w=10, h=10, p_uf=1, p_ul=1, p_up=1, p_fl=1, role_division = (100,0,5,5), moore=False):
+
+    def __init__(self, N=100, g=10, w=10, h=10, p_uf=1, p_ul=1, p_up=1, p_fl=1, role_division=(100, 0, 5, 5),
+                 moore=False):
         """
 
         :param g: amount of ants possible in a following group of ants
         :param width: int, width of the system
         :param height: int, height of the system
-        :param role_division: tuple with (nr_unassigned, nr_leaders, nr_followers, nr_pheromoners)
+        :param role_division: tuple with (nr_unassigned, nr_followers, nr_leaders, nr_pheromoners)
         :param moore: boolean, True/False whether Moore/vonNeumann is used
         """
         super().__init__()
@@ -24,6 +27,7 @@ class Environment(Model):
         self.height = h
         self.moore = moore
         self.grid = MultiGrid(w, h, torus=True)
+        self.transition_p = {0: (0, 0), 1: (0, 1), 2: (p_uf, 1), 5: (p_ul, 2), 3: (p_up, 3), 6: (p_fl, 2)}
 
         # Environment attributes
         self.schedule = RandomActivation(self)
@@ -31,12 +35,12 @@ class Environment(Model):
         # Ant variables
         self.g = g
         self.role_division = role_division
-        self.N = np.sum(role_division) # give amount of ants a variable N
+        self.N = np.sum(role_division)  # give amount of ants a variable N
         for i, number in enumerate(role_division):
             self.add_ants(number, i)
 
     def get_random_position(self):
-        """docstring for random position.""" #TODO
+        """docstring for random position."""  # TODO
         return (np.random.randint(0, self.width), np.random.randint(0, self.height))
 
     def add_ants(self, N, role):

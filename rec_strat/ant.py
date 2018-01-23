@@ -3,11 +3,12 @@ import numpy as np
 import random
 import matplotlib.patches as patches
 
-
 role_colours = ['g', 'r', 'b', 'c']
+
 
 class Ant(Agent):
     """docstring for Ant."""
+
     def __init__(self, id, model, pos=None, role=0):
         super(Ant, self).__init__(id, model)
 
@@ -51,9 +52,21 @@ class Ant(Agent):
 
     def get_new_role(self):
         neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
-
         if len(neighbors):
-            self.role = np.random.choice(neighbors).role
+            if self.role == 0:
+                n = np.random.choice(neighbors)
+                if n.role > 1:
+                    if np.random.uniform(0, 1, 1) < self.model.transition_p[n.role][0]:
+                        self.role = self.model.transition_p[n.role][1]
+            elif self.role == 1:
+                pass
+            elif self.role == 2:
+                pass
+            elif self.role == 3:
+                pass
+
+    def _role_count(self, agents, role):
+        return sum([1 if a.role == role else 0 for a in agents])
 
     def update_vis(self):
         """
