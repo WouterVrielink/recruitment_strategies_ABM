@@ -1,6 +1,7 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from batchrunner import BatchRunner
 
 
