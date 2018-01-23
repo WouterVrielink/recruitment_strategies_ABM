@@ -19,8 +19,33 @@ def plot_col(df, cols):
     df[cols].plot()
     plt.show()
 
+def plot_continuous(env, steps=1000):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlim([0, env.width])
+    ax.set_ylim([0, env.height])
+    env.animate(ax)
+    fig_num = plt.get_fignums()[0]
+
+    for i in range(steps):
+        if not plt.fignum_exists(fig_num): return False
+
+        plt.title('iteration: ' + str(i))
+        plt.pause(0.001)
+
+        # take a step
+        env.step()
+
+        # store the state for animation
+        env.animate(ax)
+        fig.canvas.draw()
+    return True
+
 
 if __name__ == '__main__':
+    env = Environment()
+    plot_continuous(env)
+
     replications = 5
     max_steps = 1000
     model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
