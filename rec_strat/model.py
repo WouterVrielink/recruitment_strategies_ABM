@@ -1,7 +1,9 @@
+import numpy as np
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-import numpy as np
+
 from ant import Ant
 
 class Environment(Model):
@@ -97,4 +99,4 @@ class Environment(Model):
         :param pos: tuple (int: x, int: y)
         :return: tuple (float: x, float: y)
         """
-        return pos[0] - 0.5, self.height - pos[1] - 1.5
+        return pos[0], self.height - pos[1] - 1
