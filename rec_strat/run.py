@@ -1,4 +1,4 @@
-from model import Model
+from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
 from mesa.batchrunner import BatchRunner
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     var_params = {"N": np.arange(10, 100, 10)}
     fixed_params = {"g": 10, "w": 50, "h": 50, "p_uf": 0.5, "p_ul": 0.5, "p_up": 0.5, "p_fl": 0.5}
-    batch_run = BatchRunner(Model, variable_parameters=var_params, fixed_parameters=fixed_params,
+    batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params,
                             max_steps=max_steps, iterations=replications, model_reporters=model_reporters)
     batch_run.run_all(4)
     data = batch_run.get_model_vars_dataframe()
