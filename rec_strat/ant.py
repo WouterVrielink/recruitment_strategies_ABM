@@ -51,19 +51,24 @@ class Ant(Agent):
         self.model.move_agent(self, random.choice(posibilities))
 
     def get_new_role(self):
-        neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
-        if len(neighbors):
-            if self.role == 0:
+        if self.role == 0:
+            neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0,
+                                                      moore=self.model.moore)
+            if len(neighbors):
                 n = np.random.choice(neighbors)
                 if n.role > 1:
                     if np.random.uniform(0, 1, 1) < self.model.transition_p[n.role][0]:
                         self.role = self.model.transition_p[n.role][1]
-            elif self.role == 1:
-                pass
-            elif self.role == 2:
-                pass
-            elif self.role == 3:
-                pass
+        elif self.role == 1:
+            pass
+        elif self.role == 2:
+            if np.random.uniform(0, 1, 1) < self.model.transition_p[4][0]:
+                for f in self.followers:
+                    f.role = 2
+                self.followers = []
+        elif self.role == 3:
+            if np.random.uniform(0, 1, 1) < self.model.transition_p[5][0]:
+                self.role = 0
 
     def _role_count(self, agents, role):
         return sum([1 if a.role == role else 0 for a in agents])
