@@ -6,7 +6,7 @@ from ant import Ant
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, N=100, g=10, w=10, h=10, p_u=1, p_ul=1, p_up=1, p_fl=1, role_division = (100,0,5,5), moore=False):
+    def __init__(self, N=100, g=10, w=10, h=10, p_uf=1, p_ul=1, p_up=1, p_fl=1, role_division = (100,0,5,5), moore=False):
         """
 
         :param g: amount of ants possible in a following group of ants
@@ -44,7 +44,7 @@ class Environment(Model):
         """
         for i in range(N):
             a = Ant(i, model=self, pos=None, role=role)
-            print(a.pos)
+            # print(a.pos)
             self.grid.place_agent(a, a.pos)
             self.schedule.add(a)
 

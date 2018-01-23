@@ -22,6 +22,7 @@ def plot_col(df, cols):
     df[cols].plot()
     plt.show()
 
+
 def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -46,19 +47,20 @@ def plot_continuous(env, steps=1000):
 
 
 if __name__ == '__main__':
-    env = Environment()
-    plot_continuous(env)
+    # env = Environment()
+    # plot_continuous(env)
 
     replications = 5
-    max_steps = 1000
+    max_steps = 100
     model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
                        "followers": lambda m: sum([1 if a.role == 1 else 0 for a in m.schedule.agents]),
                        "leaders": lambda m: sum([1 if a.role == 2 else 0 for a in m.schedule.agents]),
                        "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
 
-    var_params = {"N": np.arange(10, 100, 10)}
+    var_params = {"N": np.arange(10, 100, 50)}
     fixed_params = {"g": 10, "w": 50, "h": 50, "p_uf": 0.5, "p_ul": 0.5, "p_up": 0.5, "p_fl": 0.5}
     batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params,
                             max_steps=max_steps, iterations=replications, model_reporters=model_reporters)
     batch_run.run_all(4)
     data = batch_run.get_model_vars_dataframe()
+    plot_p_fl(data)
