@@ -1,17 +1,12 @@
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from mesa.datacollection import DataCollector
-import metrics
 import numpy as np
-import random
-from scipy.ndimage import gaussian_filter
-from scipy.spatial import distance
 from ant import Ant
 
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
-    def __init__(self, g, w, h, role_division = (100,0,5,5), moore=False):
+    def __init__(self, N=100, g=10, w=10, h=10, p_u=1, p_ul=1, p_up=1, p_fl=1, role_division = (100,0,5,5), moore=False):
         """
 
         :param g: amount of ants possible in a following group of ants
@@ -23,10 +18,10 @@ class Environment(Model):
         super().__init__()
 
         # Environment variables
-        self.width = width
-        self.height = height
+        self.width = w
+        self.height = h
         self.moore = moore
-        self.grid = MultiGrid(width, height, False)
+        self.grid = MultiGrid(w, h, False)
 
         # Environment attributes
         self.schedule = RandomActivation(self)
@@ -35,6 +30,8 @@ class Environment(Model):
         self.g = g
         self.role_division = role_division
         self.N = np.sum(role_division) # give amount of ants a variable N
+        for i, number in enumerate(role_division):
+            self.add_ants(number, i)
 
     def get_random_position(self):
         """docstring for random position.""" #TODO
@@ -46,9 +43,10 @@ class Environment(Model):
         :param N: integer value which specifies the nr of ants to add
         """
         for i in range(N):
-            a = Ant(i, self, role)
-            self.environment.grid.place_agent(a, a.pos)
-            self.environment.schedule.add(a)
+            a = Ant(i, model=self, pos=None, role=role)
+            print(a.pos)
+            self.grid.place_agent(a, a.pos)
+            self.schedule.add(a)
 
         if N == 1:
             return a
@@ -66,7 +64,7 @@ class Environment(Model):
         else:
             assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large, loc_food {}".format(ant.pos, pos, self.food.get_food_pos())
+                "is too large, pos_food {}".format(ant.pos, pos, self.food.get_food_pos())
 
         self.grid.move_agent(ant, pos)
 
@@ -76,3 +74,27 @@ class Environment(Model):
         are updated per colony in random order.
         """
         self.schedule.step()
+
+    def animate(self, ax):
+        """
+
+        :param ax:
+        :return:
+        """
+        self.ax = ax
+        self.animate_ants()
+
+    def animate_ants(self):
+        """
+        Update the visualization part of the Ants.
+        """
+        for ant in self.schedule.agents:
+            ant.update_vis()
+
+    def grid_to_array(self, pos):
+        """
+        Convert the position/indices on self.grid to imshow array.
+        :param pos: tuple (int: x, int: y)
+        :return: tuple (float: x, float: y)
+        """
+        return pos[0] - 0.5, self.height - pos[1] - 1.5

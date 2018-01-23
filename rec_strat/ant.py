@@ -1,19 +1,22 @@
 from mesa import Agent
 import numpy as np
+import random
+import matplotlib.patches as patches
+
 
 role_colours = ['g', 'r', 'b', 'c']
 
 class Ant(Agent):
     """docstring for Ant."""
-    def __init__(self, model, pos=None, role=0):
-        super(Ant, self).__init__()
+    def __init__(self, id, model, pos=None, role=0):
+        super(Ant, self).__init__(id, model)
 
         # Agent attributes
         self.model = model
         self.role = role
 
         # Agent variables
-        self.pos = pos if pos is None else self.model.get_random_position()
+        self.pos = pos if pos is not None else self.model.get_random_position()
 
         self.followers = []
 
@@ -42,12 +45,12 @@ class Ant(Agent):
             pass
 
     def move(self):
-        posibilities = self.model.get_neighborhood()
+        posibilities = self.model.grid.get_neighborhood(self.pos, moore=self.model.moore)
 
-        self.model.move_agent(self, np.random.choice(posibilities))
+        self.model.move_agent(self, random.choice(posibilities))
 
     def get_new_role(self):
-        neighbors = self.model.get_neighbors(self.pos, include_center=True, radius=0)
+        neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
 
         if len(neighbors):
             self.role = np.random.choice(neighbors).role
@@ -56,15 +59,17 @@ class Ant(Agent):
         """
         :return:
         """
-        pos = self.environment.grid_to_array(self.pos)
+        pos = self.model.grid_to_array(self.pos)
         pos = (pos[0] + (1 - self.size) / 2, pos[1] + (1 - self.size) / 2)
 
         if not self._patch:
             self._patch = patches.Rectangle(pos, self.size, self.size, linewidth=2,
                                             edgecolor='k', facecolor='w', fill=True, zorder=2)
-            self.environment.ax.add_patch(self._patch)
+            self.model.ax.add_patch(self._patch)
 
         self._patch.set_facecolor(role_colours[self.role])
         self._patch.set_xy(pos)
+
+        print(self._patch)
 
         return self._patch
