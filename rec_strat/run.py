@@ -1,7 +1,7 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from mesa.batchrunner import BatchRunner
+from batchrunner import BatchRunner
 
 
 def plot_p_fl(df):
