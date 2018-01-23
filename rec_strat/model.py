@@ -1,7 +1,9 @@
+import numpy as np
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-import numpy as np
+
 from ant import Ant
 
 class Environment(Model):
