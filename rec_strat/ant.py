@@ -70,6 +70,4 @@ class Ant(Agent):
         self._patch.set_facecolor(role_colours[self.role])
         self._patch.set_xy(pos)
 
-        print(self._patch)
-
         return self._patch
