@@ -1,12 +1,14 @@
+import numpy as np
+import random
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
-import metrics
-import numpy as np
-import random
+
 from scipy.ndimage import gaussian_filter
 from scipy.spatial import distance
+
 from ant import Ant
 
 class Environment(Model):
@@ -66,7 +68,7 @@ class Environment(Model):
         else:
             assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
                 "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large, loc_food {}".format(ant.pos, pos, self.food.get_food_pos())
+                "is too large, pos_food {}".format(ant.pos, pos, self.food.get_food_pos())
 
         self.grid.move_agent(ant, pos)
 
