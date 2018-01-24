@@ -40,7 +40,7 @@ class Ant(Agent):
     def step(self):
         self.move()
 
-        self._role.role_actions(self)
+        self.role.role_actions(self)
 
         # self.role_actions()
 
