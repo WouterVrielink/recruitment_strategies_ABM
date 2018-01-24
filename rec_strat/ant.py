@@ -14,8 +14,10 @@ class Ant(Agent):
 
         # Agent attributes
         self.model = model
-        self.role = role
+        self.role_funcs = [self.get_new_role_u, self.get_new_role_f, self.get_new_role_l, self.get_new_role_p]
 
+        self._role = None
+        self.role = role
         # Agent variables
         self.pos = pos if pos is not None else self.model.get_random_position()
 
@@ -24,6 +26,15 @@ class Ant(Agent):
         # Visualization
         self._patch = None
         self.size = 0.4
+
+    @property
+    def role(self):
+        return self._role
+
+    @role.setter
+    def role(self, new_role):
+        self._role = new_role
+        self.get_new_role = self.role_funcs[new_role]
 
     def step(self):
         self.move()
@@ -50,28 +61,30 @@ class Ant(Agent):
 
         self.model.move_agent(self, random.choice(posibilities))
 
-    def get_new_role(self):
-        if self.role == 0:
-            neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0,
-                                                      moore=self.model.moore)
-            if len(neighbors):
-                n = np.random.choice(neighbors)
-                if n.role > 1:
-                    if np.random.uniform(0, 1, 1) < self.model.transition_p[n.role][0]:
-                        self.role = self.model.transition_p[n.role][1]
-        elif self.role == 1:
-            pass
-        elif self.role == 2:
-            if np.random.uniform(0, 1, 1) < self.model.transition_p[4][0]:
-                for f in self.followers:
-                    f.role = 2
-                self.followers = []
-        elif self.role == 3:
-            if np.random.uniform(0, 1, 1) < self.model.transition_p[5][0]:
-                self.role = 0
+    def get_new_role_u(self):
+        neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
+        if len(neighbors):
+            n = np.random.choice(neighbors)
+            if n.role > 1:
+                if np.random.uniform(0, 1, 1) < self.model.transition_p[n.role][0]:
+                    self.role = self.model.transition_p[n.role][1]
+                    if n.role == 2:
+                        n.followers.append(self)
 
-    def _role_count(self, agents, role):
-        return sum([1 if a.role == role else 0 for a in agents])
+    def get_new_role_f(self):
+        pass
+
+    def get_new_role_l(self):
+        c = np.random.choice([4, 6])
+        if np.random.uniform(0, 1, 1) < self.model.transition_p[c][0]:
+            self.role = self.model.transition_p[c][1]
+            for f in self.followers:
+                f.role = self.model.transition_p[c][1]
+            self.followers = []
+
+    def get_new_role_p(self):
+        if np.random.uniform(0, 1, 1) < self.model.transition_p[5][0]:
+            self.role = 0
 
     def update_vis(self):
         """

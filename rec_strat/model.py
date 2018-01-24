@@ -3,6 +3,7 @@ import numpy as np
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
+from mesa.datacollection import DataCollector
 
 from ant import Ant
 
@@ -10,7 +11,8 @@ from ant import Ant
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
 
-    def __init__(self, N=100, g=10, w=10, h=10, p_uf=1, p_ul=1, p_up=1, p_fl=1, role_division=(100, 0, 5, 5),
+    def __init__(self, N=100, g=10, w=10, h=10, p_uf=0.5, p_pu=0.01, p_up=0.5, p_fl=0.01, p_lu=0.01,
+                 role_division=(100, 0, 5, 5),
                  moore=False):
         """
 
@@ -27,7 +29,7 @@ class Environment(Model):
         self.height = h
         self.moore = moore
         self.grid = MultiGrid(w, h, torus=True)
-        self.transition_p = {0: (0, 0), 1: (0, 1), 2: (p_uf, 1), 5: (p_ul, 2), 3: (p_up, 3), 6: (p_fl, 2)}
+        self.transition_p = [(0, 0), (0, 1), (p_uf, 1), (p_up, 3), (p_fl, 2), (p_pu, 0), (p_lu, 0)]
 
         # Environment attributes
         self.schedule = RandomActivation(self)
@@ -38,6 +40,13 @@ class Environment(Model):
         self.N = np.sum(role_division)  # give amount of ants a variable N
         for i, number in enumerate(role_division):
             self.add_ants(number, i)
+
+        model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
+                           "followers": lambda m: sum([1 if a.role == 1 else 0 for a in m.schedule.agents]),
+                           "leaders": lambda m: sum([1 if a.role == 2 else 0 for a in m.schedule.agents]),
+                           "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
+        self.dc = DataCollector(model_reporters=model_reporters)
+
 
     def get_random_position(self):
         """docstring for random position."""  # TODO
@@ -80,6 +89,7 @@ class Environment(Model):
         are updated per colony in random order.
         """
         self.schedule.step()
+        self.dc.collect(self)
 
     def animate(self, ax):
         """

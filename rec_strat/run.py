@@ -47,18 +47,19 @@ def plot_continuous(env, steps=1000):
 
 
 if __name__ == '__main__':
-    env = Environment()
-    plot_continuous(env)
-
-    # replicates = 10
-    # max_steps = 200
+    env = Environment(p_up=0.2)
+    plot_continuous(env, 200)
+    data = env.dc.get_model_vars_dataframe()
+    plot_col(data, ['unassigned', 'followers', 'leaders', 'pheromone'])
+    # replicates = 3
+    # max_steps = 500
     # model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
     #                    "followers": lambda m: sum([1 if a.role == 1 else 0 for a in m.schedule.agents]),
     #                    "leaders": lambda m: sum([1 if a.role == 2 else 0 for a in m.schedule.agents]),
     #                    "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
     #
-    # var_params = {"N": np.arange(10, 100, 50)}
-    # fixed_params = {"g": 10, "w": 50, "h": 50, "p_uf": 0.5, "p_ul": 0.5, "p_up": 0.5, "p_fl": 0.5}
+    # var_params = {"p_pu": np.arange(0, 1, 0.3), "p_uf": np.arange(0, 1, 0.3)}
+    # fixed_params = {"N": 100, "g": 10, "w": 50, "h": 50, "p_up": 0.5, "p_fl": 0.01}
     # batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params,
     #                         max_steps=max_steps, iterations=replicates, model_reporters=model_reporters)
     # batch_run.run_all(4)
