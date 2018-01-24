@@ -50,10 +50,18 @@ class Ant(Agent):
         self.model.move_agent(self, random.choice(posibilities))
 
     def get_new_role(self):
-        neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
+        x, y = self.pos
 
-        if len(neighbors):
-            self.role = np.random.choice(neighbors).role
+        neighbors = self.model.grid.grid[x][y]
+
+        if neighbors:
+            self.role = random.choice(list(neighbors)).role
+
+        # for neigh in neighbors:
+        #     self.role = neigh.role
+        #     break
+
+    self.inactive(arg1, arg2)
 
     def update_vis(self):
         """
