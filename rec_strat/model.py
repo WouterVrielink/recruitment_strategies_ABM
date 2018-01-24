@@ -49,10 +49,10 @@ class Environment(Model):
         for role, number in role_division.items():
             self.add_ants(number, role)
 
-        model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
-                           "followers": lambda m: sum([1 if a.role == 1 else 0 for a in m.schedule.agents]),
-                           "leaders": lambda m: sum([1 if a.role == 2 else 0 for a in m.schedule.agents]),
-                           "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
+        model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
+                           "followers": lambda m: sum([1 if a.role == Follower else 0 for a in m.schedule.agents]),
+                           "leaders": lambda m: sum([1 if a.role == Leader else 0 for a in m.schedule.agents]),
+                           "pheromone": lambda m: sum([1 if a.role == Pheromone else 0 for a in m.schedule.agents])}
         self.dc = DataCollector(model_reporters=model_reporters)
 
 
