@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.patches as patches
 
+
 role_colours = ['g', 'r', 'b', 'c']
 
 
@@ -36,6 +37,7 @@ class Ant(Agent):
         self._role = new_role
         self.get_new_role = self.role_funcs[new_role]
 
+    @profile
     def step(self):
         self.move()
 
@@ -56,8 +58,9 @@ class Ant(Agent):
         elif self.role == 3:
             pass
 
+    @profile
     def move(self):
-        posibilities = self.model.grid.get_neighborhood(self.pos, moore=self.model.moore)
+        posibilities = list(self.model.get_torus_neighborhood(self.pos, self.model.moore))
 
         self.model.move_agent(self, random.choice(posibilities))
 

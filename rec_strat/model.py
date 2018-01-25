@@ -47,6 +47,32 @@ class Environment(Model):
                            "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
         self.dc = DataCollector(model_reporters=model_reporters)
 
+    def get_torus_coordinates(self, x, y):
+        return x % self.width, y % self.height
+
+    def get_torus_neighborhood(self, pos, moore, radius=1, include_center=False):
+        x, y = pos
+
+        coordinates = set()
+
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                if dx == 0 and dy == 0 and not include_center:
+                    continue
+
+                if not moore and abs(dx) + abs(dy) > radius:
+                    continue
+
+                px, py = x + dx, y + dy
+
+                px, py = self.get_torus_coordinates(px, py)
+
+                coords = (px, py)
+
+                if coords not in coordinates:
+                    coordinates.add(coords)
+                    yield coords
+
 
     def get_random_position(self):
         """docstring for random position."""  # TODO
