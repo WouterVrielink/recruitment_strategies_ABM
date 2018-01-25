@@ -130,9 +130,10 @@ class BatchRunner:
         run_count = count()
         total_iterations = self.iterations * len(param_sets)
 
-        with tqdm(total_iterations, disable=not self.display_progress) as pbar:
+        with tqdm(total=total_iterations, disable=not self.display_progress) as pbar:
             for param_values in param_sets:
                 kwargs = dict(zip(param_names, param_values))
+                # print(kwargs)
                 kwargs.update(self.fixed_parameters)
 
                 # make a new process and add it to the queue
@@ -164,15 +165,18 @@ class BatchRunner:
 
         # Collect and store results:
         model_key = param_values + (run_count,)
+        model_ret = None
+        agent_ret = None
         if self.model_reporters:
-            self.model_vars[model_key] = self.collect_model_vars(model)
+            #self.model_vars[model_key] = self.collect_model_vars(model)
+            model_ret = {model_key: self.collect_model_vars(model)}
         if self.agent_reporters:
             agent_vars = self.collect_agent_vars(model)
             for agent_id, reports in agent_vars.items():
                 agent_key = model_key + (agent_id,)
                 self.agent_vars[agent_key] = reports
 
-        return (getattr(self, "model_vars", None), getattr(self, "agent_vars", "None"))
+        return (model_ret, agent_ret)
 
     def run_model(self, model):
         """ Run a model object to completion, or until reaching max steps.
