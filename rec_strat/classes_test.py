@@ -47,30 +47,40 @@ class Ant:
 # def Inactive(self):
 #     self.counter += 1
 
-# class Ant:
-#     def __init__(self, role):
-#         self._role = None
-#         self.role = role
-#         self.counter = 0
-#
-#     @property
-#     def role(self):
-#         return self._role
-#
-#     @role.setter
-#     def role(self, new_role):
-#         self._role = new_role
-#
-#     def step(self):
-#         self.role.step(self)
-#
-# class Inactive:
-#     def step(self):
-#         self.counter += 1
-#
-# class Active:
-#     def step(self):
-#         self.counter += 1
+class Ant:
+    def __init__(self, role):
+        self._role = None
+        self.role = role
+        self.counter = 0
+
+    @property
+    def role(self):
+        return self._role
+
+    @role.setter
+    def role(self, new_role):
+        self._role = new_role
+
+    def step(self):
+        self.role.step(self)
+
+class Inactive:
+    def step(self):
+        self.counter += 0
+
+class Active:
+    def step(self):
+        self.counter += 1
+
+class User:
+    def get_password():
+        pass
+
+    def get_name():
+        pass
+
+
+User.get_password()
 
 
 ant = Ant(0)
