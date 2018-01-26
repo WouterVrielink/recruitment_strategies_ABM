@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.patches as patches
 from roles import Unassigned, Follower, Leader, Pheromone
+from copy import copy
 
 role_colours = {Unassigned: 'g', Follower: 'r', Leader: 'b', Pheromone: 'c'}
 
@@ -34,6 +35,15 @@ class Ant(Agent):
     @role.setter
     def role(self, new_role):
         self._role = new_role
+
+    def get_neighbors(self):
+        x, y = self.pos
+
+        neighbors = copy(self.model.grid.grid[x][y])
+
+        neighbors.remove(self)
+
+        return neighbors
 
     def step(self):
         self.move()

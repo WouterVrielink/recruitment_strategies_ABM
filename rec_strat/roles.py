@@ -1,12 +1,19 @@
 import numpy as np
-
+import random
+from copy import copy
 
 class Unassigned:
+    @profile
     def role_actions(self):
-        neighbors = self.model.grid.get_neighbors(self.pos, include_center=True, radius=0, moore=self.model.moore)
-        if len(neighbors):
-            n = np.random.choice(neighbors)
+        x, y = self.pos
+
+        neighbors = self.get_neighbors()
+
+        if neighbors:
+            n = random.choice(list(neighbors))
+
             recruit_chance, new_role = self.model.recruit_probs[n.role]
+
             if np.random.uniform(0, 1, 1) < recruit_chance:
                 self.role = new_role
                 if n.role == Leader:
