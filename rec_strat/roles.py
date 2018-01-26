@@ -8,12 +8,14 @@ class Unassigned:
         if neighbors:
             n = random.choice(list(neighbors))
 
-            recruit_chance, new_role = self.model.recruit_probs[n.role]
+            transition_chance, new_role = self.model.interaction_probs[n.role]
 
-            if np.random.uniform(0, 1, 1) < recruit_chance:
-                self.role = new_role
-                if n.role == Leader:
+            if np.random.random() < transition_chance:
+                if n.role == Leader and len(n.followers) < self.model.g:
                     n.followers.append(self)
+                    self.role = new_role
+                elif n.role == Pheromone:
+                    self.role = new_role
 
 
 class Follower:
@@ -23,18 +25,32 @@ class Follower:
 
 class Leader:
     def role_actions(self):
-        e = np.random.choice(["succes", "failure"])
-        event_chance, new_role = self.model.event_probs[e]
+        neighbors = self.get_neighbors()
 
-        if np.random.uniform(0, 1, 1) < event_chance:
-            self.role = new_role
-            for f in self.followers:
-                f.role = new_role
-            self.followers = []
+        if neighbors:
+            n = random.choice(list(neighbors))
+            if n in self.followers:
+                transition_chance, new_role = self.model.interaction_probs["success"]
+                if np.random.random() < transition_chance:
+                    for follower in self.followers:
+                        follower.role = new_role
+                    self.followers = []
+            else:
+                transition_chance, new_role = self.model.interaction_probs["failure"]
+                if np.random.random() < transition_chance:
+                    for follower in self.followers:
+                        follower.role = new_role
+                    self.role = new_role
+                    self.followers = []
 
 
 class Pheromone:
     def role_actions(self):
-        event_chance, new_role = self.model.event_probs["scent_lost"]
-        if np.random.uniform(0, 1, 1) < event_chance:
-            self.role = new_role
+        neighbors = self.get_neighbors()
+
+        if neighbors:
+            n = random.choice(list(neighbors))
+            if n.role != self.role:
+                event_chance, new_role = self.model.interaction_probs["scent_lost"]
+                if np.random.uniform(0, 1, 1) < event_chance:
+                    self.role = new_role

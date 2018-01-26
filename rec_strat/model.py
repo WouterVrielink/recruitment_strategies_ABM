@@ -12,8 +12,8 @@ from roles import Unassigned, Follower, Leader, Pheromone
 class Environment(Model):
     """ A model which contains a number of ant colonies. """
 
-    def __init__(self, N=100, g=10, w=10, h=10, p_uf=0.5, p_pu=0.01, p_up=0.5, p_fl=0.01, p_lu=0.01,
-                 role_division={Unassigned: 100, Follower: 0, Leader: 5, Pheromone: 5},
+    def __init__(self, N=100, g=2, w=10, h=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
+                 role_division={Unassigned: 10, Follower: 0, Leader: 5, Pheromone: 5},
                  moore=False):
         """
 
@@ -30,14 +30,13 @@ class Environment(Model):
         self.height = h
         self.moore = moore
         self.grid = MultiGrid(w, h, torus=True)
-        # self.transition_p = [(0, 0), (0, 1), (p_uf, 1), (p_up, 3), (p_fl, 2), (p_pu, 0), (p_lu, 0)]
-        self.recruit_probs = {Unassigned: (-1, None),
-                              Follower: (-1, None),
-                              Leader: (p_uf, Follower),
-                              Pheromone: (p_up, Pheromone)}
-        self.event_probs = {"succes": (p_fl, Leader),
-                            "failure": (p_lu, Unassigned),
-                            "scent_lost": (p_pu, Unassigned)}
+        self.interaction_probs = {Unassigned: (-1, None),
+                                  Follower: (-1, None),
+                                  Leader: (p_uf, Follower),
+                                  Pheromone: (p_up, Pheromone),
+                                  "success": (p_fl, Leader),
+                                  "failure": (p_lu, Unassigned),
+                                  "scent_lost": (p_pu, Unassigned)}
 
         # Environment attributes
         self.schedule = RandomActivation(self)
