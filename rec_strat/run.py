@@ -2,7 +2,7 @@ from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-# from mesa.batchrunner import BatchRunner
+from roles import Unassigned, Follower, Leader, Pheromone
 from batchrunner import BatchRunner
 
 def plot_p_fl(df):
@@ -51,13 +51,12 @@ if __name__ == '__main__':
     # plot_continuous(env, 200)
     # data = env.dc.get_model_vars_dataframe()
     # plot_col(data, ['unassigned', 'followers', 'leaders', 'pheromone'])
-    # replicates = 1
-    # max_steps = 1000
-    # model_reporters = {"unassigned": lambda m: sum([1 if a.role == 0 else 0 for a in m.schedule.agents]),
-    #                    "followers": lambda m: sum([1 if a.role == 1 else 0 for a in m.schedule.agents]),
-    #                    "leaders": lambda m: sum([1 if a.role == 2 else 0 for a in m.schedule.agents]),
-    #                    "pheromone": lambda m: sum([1 if a.role == 3 else 0 for a in m.schedule.agents])}
-    #
+    # replicates = 3
+    # max_steps = 500
+    # model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
+    #                    "followers": lambda m: sum([1 if a.role == Follower else 0 for a in m.schedule.agents]),
+    #                    "leaders": lambda m: sum([1 if a.role == Leader else 0 for a in m.schedule.agents]),
+    #                    "pheromone": lambda m: sum([1 if a.role == Pheromone else 0 for a in m.schedule.agents])}
     # var_params = {"p_pu": np.arange(0, 1, 0.3), "p_uf": np.arange(0, 1, 0.3)}
     # fixed_params = {"N": 100, "g": 10, "w": 50, "h": 50, "p_up": 0.5, "p_fl": 0.01}
     # batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params,

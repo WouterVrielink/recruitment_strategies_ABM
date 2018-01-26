@@ -25,7 +25,7 @@ def combinations(*items):
 
 class VariableParameterError(TypeError):
     MESSAGE = ('variable_parameters must map a name to a sequence of values. '
-            'These parameters were given with non-sequence values: {}')
+               'These parameters were given with non-sequence values: {}')
 
     def __init__(self, bad_names):
         self.bad_names = bad_names
@@ -46,9 +46,10 @@ class BatchRunner:
     entire DataCollector object.
 
     """
-    def __init__(self, model_cls, variable_parameters=None,
-            fixed_parameters=None, iterations=1, max_steps=1000,
-            model_reporters=None, agent_reporters=None, display_progress=True):
+
+    def __init__(self, model_cls, variable_parameters=None, param_names=None, param_sets=None,
+                 fixed_parameters=None, iterations=1, max_steps=1000,
+                 model_reporters=None, agent_reporters=None, display_progress=True):
         """ Create a new BatchRunner for a given model with the given
         parameters.
 
@@ -81,10 +82,16 @@ class BatchRunner:
 
         """
         self.model_cls = model_cls
-        self.variable_parameters = self._process_parameters(variable_parameters)
+        if variable_parameters:
+            self.variable_parameters = self._process_parameters(variable_parameters)
+        else:
+            self.variable_parameters = None
         self.fixed_parameters = fixed_parameters or {}
         self.iterations = iterations
         self.max_steps = max_steps
+
+        self.param_names = param_names
+        self.param_sets = param_sets
 
         self.model_reporters = model_reporters
         self.agent_reporters = agent_reporters
@@ -114,14 +121,19 @@ class BatchRunner:
         pool = ProcessPool(nodes=processes)
         job_queue = []
 
-        param_names, param_ranges = zip(*self.variable_parameters.items())
+        if self.variable_parameters:
+            param_names, param_sets = self.generate_samples()
+        else:
+            param_names = self.param_names
+            param_sets = self.param_sets
+
         run_count = count()
-        total_iterations = self.iterations
-        for param_range in param_ranges:
-            total_iterations *= len(param_range)
-        with tqdm(total_iterations, disable=not self.display_progress) as pbar:
-            for param_values in product(*param_ranges):
+        total_iterations = self.iterations * len(param_sets)
+
+        with tqdm(total=total_iterations, disable=not self.display_progress) as pbar:
+            for param_values in param_sets:
                 kwargs = dict(zip(param_names, param_values))
+                # print(kwargs)
                 kwargs.update(self.fixed_parameters)
 
                 # make a new process and add it to the queue
@@ -139,6 +151,11 @@ class BatchRunner:
                             getattr(self, "agent_vars", None)[agent_key] = reports
                 pbar.update()
 
+    def generate_samples(self):
+        param_names, param_ranges = zip(*self.variable_parameters.items())
+        param_sets = product(*param_ranges)
+        return param_names, param_sets
+
     def iter(self, kwargs, param_values, run_count):
         # make a new model
         model = self.model_cls(**kwargs)
@@ -148,15 +165,18 @@ class BatchRunner:
 
         # Collect and store results:
         model_key = param_values + (run_count,)
+        model_ret = None
+        agent_ret = None
         if self.model_reporters:
-            self.model_vars[model_key] = self.collect_model_vars(model)
+            #self.model_vars[model_key] = self.collect_model_vars(model)
+            model_ret = {model_key: self.collect_model_vars(model)}
         if self.agent_reporters:
             agent_vars = self.collect_agent_vars(model)
             for agent_id, reports in agent_vars.items():
                 agent_key = model_key + (agent_id,)
                 self.agent_vars[agent_key] = reports
 
-        return (getattr(self, "model_vars", None), getattr(self, "agent_vars", "None"))
+        return (model_ret, agent_ret)
 
     def run_model(self, model):
         """ Run a model object to completion, or until reaching max steps.
@@ -198,7 +218,7 @@ class BatchRunner:
 
         """
         return self._prepare_report_table(self.agent_vars,
-                extra_cols=['AgentId'])
+                                          extra_cols=['AgentId'])
 
     def _prepare_report_table(self, vars_dict, extra_cols=None):
         """
@@ -206,7 +226,10 @@ class BatchRunner:
         column as a key.
         """
         extra_cols = ['Run'] + (extra_cols or [])
-        index_cols = list(self.variable_parameters.keys()) + extra_cols
+        if self.variable_parameters:
+            index_cols = list(self.variable_parameters.keys()) + extra_cols
+        else:
+            index_cols = self.param_names + extra_cols
 
         records = []
         for param_key, values in vars_dict.items():
