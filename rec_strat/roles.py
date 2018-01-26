@@ -1,12 +1,8 @@
 import numpy as np
 import random
-from copy import copy
 
 class Unassigned:
-    @profile
     def role_actions(self):
-        x, y = self.pos
-
         neighbors = self.get_neighbors()
 
         if neighbors:
