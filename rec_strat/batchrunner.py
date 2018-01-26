@@ -141,15 +141,19 @@ class BatchRunner:
                     job_queue.append(pool.uimap(self.iter, (kwargs,), (param_values,), (next(run_count),)))
 
             # empty the queue
+            results = []
             for task in job_queue:
                 for model_vars, agent_vars in list(task):
-                    if self.model_reporters:
-                        for model_key, model_val in model_vars.items():
-                            getattr(self, "model_vars", None)[model_key] = model_val
-                    if self.agent_reporters:
-                        for agent_key, reports in agent_vars.items():
-                            getattr(self, "agent_vars", None)[agent_key] = reports
+                    results.append((model_vars, agent_vars))
                 pbar.update()
+
+            for model_vars, agent_vars in results:
+                if self.model_reporters:
+                    for model_key, model_val in model_vars.items():
+                        getattr(self, "model_vars", None)[model_key] = model_val
+                if self.agent_reporters:
+                    for agent_key, reports in agent_vars.items():
+                        getattr(self, "agent_vars", None)[agent_key] = reports
 
     def generate_samples(self):
         param_names, param_ranges = zip(*self.variable_parameters.items())
