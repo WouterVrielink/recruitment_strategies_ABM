@@ -91,7 +91,8 @@ class BatchRunner:
         self.max_steps = max_steps
 
         self.param_names = param_names
-        self.param_sets = param_sets
+        self.param_sets = iter(param_sets)
+        self.l_param_sets = len(param_sets)
 
         self.model_reporters = model_reporters
         self.agent_reporters = agent_reporters
@@ -128,7 +129,7 @@ class BatchRunner:
             param_sets = self.param_sets
 
         run_count = count()
-        total_iterations = self.iterations * len(param_sets)
+        total_iterations = self.iterations * self.l_param_sets
 
         with tqdm(total=total_iterations, disable=not self.display_progress) as pbar:
             for param_values in param_sets:
