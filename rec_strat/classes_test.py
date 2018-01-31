@@ -72,6 +72,32 @@ class Active:
     def step(self):
         self.counter += 1
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class User:
     def get_password():
         pass
@@ -81,6 +107,30 @@ class User:
 
 
 User.get_password()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ant = Ant(0)

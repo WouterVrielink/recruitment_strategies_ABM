@@ -14,7 +14,7 @@ class Environment(Model):
 
     def __init__(self, N=100, g=2, w=10, h=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
                  role_division={Unassigned: 10, Follower: 0, Leader: 5, Pheromone: 5},
-                 moore=False):
+                 moore=False, grow=False):
         """
 
         :param g: amount of ants possible in a following group of ants
@@ -29,6 +29,7 @@ class Environment(Model):
         self.width = w
         self.height = h
         self.moore = moore
+        self.grow = grow
         self.grid = MultiGrid(w, h, torus=True)
         self.interaction_probs = {Unassigned: (-1, None),
                                   Follower: (-1, None),
@@ -37,6 +38,7 @@ class Environment(Model):
                                   "success": (p_fl, Leader),
                                   "failure": (p_lu, Unassigned),
                                   "scent_lost": (p_pu, Unassigned)}
+        self.ant_counter = 0
 
         # Environment attributes
         self.schedule = RandomActivation(self)
@@ -90,11 +92,15 @@ class Environment(Model):
         Adds N ants to this colony.
         :param N: integer value which specifies the nr of ants to add
         """
-        for i in range(N):
-            a = Ant(i, model=self, pos=None, role=role)
+
+        for _ in range(N):
+            a = Ant(self.ant_counter, model=self, pos=None, role=role)
             # print(a.pos)
             self.grid.place_agent(a, a.pos)
             self.schedule.add(a)
+
+
+            self.ant_counter += 1
 
         if N == 1:
             return a
@@ -116,6 +122,17 @@ class Environment(Model):
 
         self.grid.move_agent(ant, pos)
 
+    def get_role_probabilities(self):
+
+        roles_n = [sum([1 if a.role == Unassigned else 0 for a in self.schedule.agents]),
+                           0,
+                           sum([1 if a.role == Leader else 0 for a in self.schedule.agents]),
+                           sum([1 if a.role == Pheromone else 0 for a in self.schedule.agents])]
+
+        print(roles_n)
+
+        return np.array(roles_n) / sum(roles_n)
+
     def step(self):
         """
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
@@ -123,6 +140,14 @@ class Environment(Model):
         """
         self.schedule.step()
         self.dc.collect(self)
+
+        if self.grow and self.schedule.steps % 10:
+            role_probs = self.get_role_probabilities()
+
+            # role = np.random.choice([Unassigned, Follower, Leader, Pheromone], p=role_probs)
+
+            self.add_ants(10, Unassigned)
+
 
     def animate(self, ax):
         """

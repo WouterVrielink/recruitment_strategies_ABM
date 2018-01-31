@@ -63,7 +63,7 @@ if __name__ == '__main__':
     #                         max_steps=max_steps, iterations=replicates, model_reporters=model_reporters)
     # batch_run.run_all(1)
 
-    env = Environment(moore=False)
+    env = Environment(moore=False, grow=True)
 
     for _ in range(10000):
         env.step()
