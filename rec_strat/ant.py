@@ -51,9 +51,9 @@ class Ant(Agent):
         self.role.role_actions(self)
 
     def move(self):
-        posibilities = list(self.model.get_torus_neighborhood(self.pos, self.model.moore))
+        possibilities = list(self.model.get_torus_neighborhood(self.pos, self.model.moore))
 
-        self.model.move_agent(self, random.choice(posibilities))
+        self.model.move_agent(self, random.choice(possibilities))
 
     def update_vis(self):
         """
