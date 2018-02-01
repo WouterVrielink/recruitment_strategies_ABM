@@ -37,7 +37,7 @@ TODO
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/WouterVrielink/recruitment_strategies_ABM/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
@@ -51,7 +51,7 @@ See also the list of [contributors](https://github.com/WouterVrielink/recruitmen
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](./LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](https://github.com/WouterVrielink/recruitment_strategies_ABM/LICENSE.md) file for details
 
 ## Acknowledgments
 
