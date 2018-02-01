@@ -16,18 +16,19 @@ class Environment(Model):
                  moore=False, grow=False):
         """
         Args:
-            :param N: number of ants
-            :param g: maximum amount of ants in a following group of ants
-            :param w: width of the system
-            :param h: height of the system
-            :param p_uf: the probability that Unassigned changes to Follower
-            :param p_pu: the probability that Pheromone changes to Unassigned
-            :param p_up: the probability that Unassigned changes to Pheromone
-            :param p_fl: the probability that Follower changes to Leader
-            :param p_lu: the probability that Leader changes to Unassigned
-            :param role_division: dictionary that holds number of ants assigned to specific roles
-            :param moore: True/False whether Moore/vonNeumann is used
-            :param grow: True/False whether the system grows over time or not
+            N (int): number of ants
+            g (int): maximum amount of ants in a following group of ants
+            w (int): width of the system
+            h (int): height of the system
+            p_uf (float): the probability that Unassigned changes to Follower
+            p_pu (float): the probability that Pheromone changes to Unassigned
+            p_up (float): the probability that Unassigned changes to Pheromone
+            p_fl (float): the probability that Follower changes to Leader
+            p_lu (float): the probability that Leader changes to Unassigned
+            role_division (dict): dictionary that holds number of ants assigned
+                to specific roles {Class role: int number_of_ants}
+            moore (bool): True/False whether Moore/vonNeumann is used
+            grow (bool): True/False whether the system grows over time or not
         """
         super().__init__()
 
@@ -68,8 +69,8 @@ class Environment(Model):
         Gives correct coordinates if the coordinates are out of bounds.
 
         Args:
-            :param x: int
-            :param y: int
+            x (int): current x position
+            y (int): current y position
 
         Returns:
             Tuple of (x, y) that is in ([0, width], [0, height])
@@ -81,11 +82,11 @@ class Environment(Model):
         Faster alternative to the mesa built-in grid.get_neighbourhood().
 
         Args:
-            :param pos: tuple of position (int: x, int: y)
-            :param moore: if True, uses Moore's neighborhood
+            pos (tuple): tuple of position (int x, int y)
+            moore (bool): if True, uses Moore's neighborhood
                    if False, uses Neumann's neighborhood
-            :param radius: decides the radius of the neighborhood (default 1)
-            :param include_center: if True, include the center
+            radius (int): decides the radius of the neighborhood (default 1)
+            include_center (bool): if True, include the center
                             if False, do not include the center
                             (default False)
 
@@ -122,7 +123,7 @@ class Environment(Model):
         Gets a random position in the grid, samples from a uniform distribution.
 
         Returns:
-            Tuple position (int: x, int: y)
+            Tuple position (int x, int y)
         """
         return (np.random.randint(0, self.width), np.random.randint(0, self.height))
 
@@ -131,8 +132,8 @@ class Environment(Model):
         Adds N ants of with role role to this colony.
 
         Args:
-            :param N: integer value which specifies the nr of ants to add
-            :param role: one of {Unassigned, Follower, Leader, Pheromone}
+            N (int): integer value which specifies the nr of ants to add
+            role (Class): one of {Unassigned, Follower, Leader, Pheromone}
         """
 
         for _ in range(N):
@@ -148,8 +149,8 @@ class Environment(Model):
         Move an agent across the map.
 
         Args:
-            :param ant: what agent to move
-            :param pos: tuple (x, y) to move the agent to
+            ant (Ant): what agent to move
+            pos (tuple): (int x, int y) to move the agent to
         """
         self.grid.move_agent(ant, pos)
 
@@ -172,13 +173,13 @@ class Environment(Model):
         Update the visualization part of the Ants.
 
         Args:
-            :param ax: axes binding of matplotlib
+            ax (Axes): axes binding of matplotlib to animate on
         """
         self.ax = ax
         self.animate_ants()
 
     def animate_ants(self):
-        """ Ask the ants do update themselfs in the animation. """
+        """ Ask the ants to update themselfs in the animation. """
         for ant in self.schedule.agents:
             ant.update_vis()
 
@@ -187,8 +188,8 @@ class Environment(Model):
         Convert the position/indices on self.grid to imshow array.
 
         Args:
-            :param pos: tuple (int: x, int: y)
+            pos (tuple): (int x, int y)
         Returns:
-            tuple (int: x, int: y), converted position in the model
+            tuple (int: x, int: y), that contains the converted position
         """
         return pos[0], self.height - pos[1] - 1
