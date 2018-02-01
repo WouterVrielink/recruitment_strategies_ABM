@@ -12,3 +12,8 @@ max_iter = 500
 replicates = 10
 
 ![it no work](g.png)
+![it no work](p_fl.png)
+![it no work](p_lu.png)
+![it no work](p_pu.png)
+![it no work](p_uf.png)
+![it no work](p_up.png)
