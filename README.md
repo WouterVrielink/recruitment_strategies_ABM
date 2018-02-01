@@ -1,4 +1,4 @@
-# Project Title
+# An Agent-Based Model of ants' recruitment strategies compared to their colony size
 
 Codebase for the foraging strategies paper.
 
