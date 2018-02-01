@@ -83,16 +83,16 @@ class Environment(Model):
 
         Args:
             pos: tuple of position (int: x, int: y)
-            moore: if True, uses Moore's neighborhood
-                   if False, uses Neumann's neighborhood
-            radius: decides the radius of the neighborhood (default 1)
+            moore: if True, uses Moore's neighbourhood
+                   if False, uses Neumann's neighbourhood
+            radius: decides the radius of the neighbourhood (default 1)
             include_center: if True, include the center
                             if False, do not include the center
                             (default False)
 
         Returns:
             An iterator that gives all coordinates that are connected to pos
-            through the given neighborhood.s
+            through the given neighborhood
         """
         x, y = pos
 
