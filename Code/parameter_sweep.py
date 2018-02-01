@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     param_sets = [tuple(param_values[i, :]) for i in range(len(param_values))]
     param_names = problem['names']
-    max_steps = 500
+    max_steps = 1000
     replicates = 1
 
     model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
