@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+The Ant class implements the ant's properties and updates.
+
+Core Objects: Ant
+"""
+
 from mesa import Agent
 import numpy as np
 import random
@@ -8,9 +15,15 @@ from copy import copy
 role_colours = {Unassigned: 'g', Follower: 'r', Leader: 'b', Pheromone: 'c'}
 
 class Ant(Agent):
-    """docstring for Ant."""
+    """ Model agent Ant."""
 
     def __init__(self, id, model, pos=None, role=Unassigned):
+        """
+        Args:
+            :param id: a unique id to represent the agent
+            :param model: the model to link the agent to
+
+        """
         super(Ant, self).__init__(id, model)
 
         # Agent attributes
