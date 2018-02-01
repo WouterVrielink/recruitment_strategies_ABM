@@ -5,7 +5,6 @@ The Ant class implements the ant's properties and updates.
 Core Objects:
     Ant: Extends the Agent class from Mesa.
 """
-
 import numpy as np
 import random
 import matplotlib.patches as patches
