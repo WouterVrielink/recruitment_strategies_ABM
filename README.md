@@ -55,8 +55,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
+* [Mesa](https://github.com/projectmesa/mesa)
 * Beyoncé
-* etc
-
-TODO
+* [Michael Lees](https://mhlees.com/)
+* [Debraj Roy](http://www.uva.nl/profiel/r/o/d.roy/d.roy.html)
