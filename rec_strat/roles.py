@@ -74,6 +74,7 @@ class Unassigned(Role):
                     self.role = new_role
 
 class Follower(Role):
+    """ Follows a leader. Has no special actions. """
     @property
     def visualization_color(self):
         """
@@ -87,6 +88,11 @@ class Follower(Role):
         pass
 
 class Leader(Role):
+    """
+    Leads a group of followers. When finding one of it's own followers, will
+    have a chance to change all followers into leaders. When finding anyone
+    else, has a chance to change all followers and itself into unassigned.
+    """
     @property
     def visualization_color(self):
         """
@@ -128,6 +134,10 @@ class Leader(Role):
                 self.followers = []
 
 class Pheromone(Role):
+    """
+    Pheromone only has a chance to stop being a pheromone when meeting anyone
+    but another pheromone.
+    """
     @property
     def visualization_color(self):
         """
@@ -142,7 +152,7 @@ class Pheromone(Role):
         'Pheromone' role.
 
         When meeting anything but it's own role, will have a chance to become
-        unassigned. 
+        unassigned.
 
         Note:
             'self' is an Ant agent object here.
