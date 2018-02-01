@@ -1,7 +1,19 @@
 import numpy as np
 import random
 
-class Unassigned:
+class Role:
+    @property
+    def visualization_color(self):
+        raise NotImplementedError
+
+    def role_actions(self):
+        raise NotImplementedError
+
+class Unassigned(Role):
+    @property
+    def visualization_color(self):
+        return 'g'
+
     def role_actions(self):
         neighbors = self.get_neighbors()
 
@@ -17,13 +29,19 @@ class Unassigned:
                 elif n.role == Pheromone:
                     self.role = new_role
 
+class Follower(Role):
+    @property
+    def visualization_color(self):
+        return 'r'
 
-class Follower:
     def role_actions(self):
         pass
 
+class Leader(Role):
+    @property
+    def visualization_color(self):
+        return 'b'
 
-class Leader:
     def role_actions(self):
         neighbors = self.get_neighbors()
 
@@ -43,8 +61,11 @@ class Leader:
                     self.role = new_role
                     self.followers = []
 
+class Pheromone(Role):
+    @property
+    def visualization_color(self):
+        return 'c'
 
-class Pheromone:
     def role_actions(self):
         neighbors = self.get_neighbors()
 

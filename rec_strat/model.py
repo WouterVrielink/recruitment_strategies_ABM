@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+The Environment class implements the Environment's properties and updates.
+
+Core Objects:
+    Environment: Extends the Model class from Mesa.
+"""
 import numpy as np
 
 from mesa import Model
@@ -26,7 +33,7 @@ class Environment(Model):
             p_fl (float): the probability that Follower changes to Leader
             p_lu (float): the probability that Leader changes to Unassigned
             role_division (dict): dictionary that holds number of ants assigned
-                to specific roles {Class role: int number_of_ants}
+                to specific roles {Role role: int number_of_ants}
             moore (bool): True/False whether Moore/vonNeumann is used
             grow (bool): True/False whether the system grows over time or not
         """
@@ -133,7 +140,7 @@ class Environment(Model):
 
         Args:
             N (int): integer value which specifies the nr of ants to add
-            role (Class): one of {Unassigned, Follower, Leader, Pheromone}
+            role (Role): one of {Unassigned, Follower, Leader, Pheromone}
         """
 
         for _ in range(N):
@@ -163,8 +170,6 @@ class Environment(Model):
         self.dc.collect(self)
 
         if self.grow and self.schedule.steps % 10:
-            role_probs = self.get_role_probabilities()
-
             self.add_ants(1, Unassigned)
 
 
