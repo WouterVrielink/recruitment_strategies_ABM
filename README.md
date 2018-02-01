@@ -3,7 +3,7 @@
 This repo holds the codebase for the ['An Agent-Based Model of ants' recruitment strategies compared to their colony size' paper](TODO). This paper was based on the paper by [Planque et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2915909/pdf/pone.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
 
 While writing this codebase, contributions where made to the [Mesa](https://github.com/projectmesa/mesa) ABM framework:
-- [[Feature Implemented]: Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
+- [[Feature Implemented] Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
 - [[Bugfix] iter_neighborhood() now gives correct neighborhoods for both von Neumann and Moore](https://github.com/projectmesa/mesa/pull/459)
 
 ## Getting Started
