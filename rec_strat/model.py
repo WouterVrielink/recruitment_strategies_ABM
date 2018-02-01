@@ -99,7 +99,7 @@ class Environment(Model):
 
         Returns:
             An iterator that gives all coordinates that are connected to pos
-            through the given neighborhood.s
+            through the given neighborhood
         """
         x, y = pos
 
