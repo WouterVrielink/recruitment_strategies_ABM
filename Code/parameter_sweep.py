@@ -13,10 +13,10 @@ if __name__ == '__main__':
     problem = {
         'num_vars': 9,
         'names': ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g', 'ratio', 'N', 'size'],
-        'bounds': [[0, 1]] * 5 + [[1, 6]] + [[0, 1]] + [[10, 200]] + [[3, 20]]
+        'bounds': [[0, 1]] * 5 + [[0, 0.5]] + [[0, 1]] + [[10, 200]] + [[3, 20]]
     }
 
-    param_values = saltelli.sample(problem, 10)
+    param_values = saltelli.sample(problem, 100)
     param_values[:,5] = np.round(param_values[:,5])
     param_values[:,7] = np.round(param_values[:,7])
     param_values[:,8] = np.round(param_values[:,8])
@@ -34,5 +34,6 @@ if __name__ == '__main__':
                         iterations=replicates, model_reporters=model_reporters)
     batch.run_all(7)
     data = batch.get_model_vars_dataframe()
+    data.to_csv("../Data/batchrun01-02-2018.csv", index=False)
     Si = sobol.analyze(problem, data['leaders'].as_matrix(), print_to_console=True)
 

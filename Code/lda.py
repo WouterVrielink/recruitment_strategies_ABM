@@ -7,7 +7,7 @@ import numpy as np
 
 
 params = ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g']
-file_path = '../Data/29-01-2018_5000.csv'
+file_path = '../Data/batchrun01-02-2018.csv'
 
 data = pd.read_csv(file_path)
 

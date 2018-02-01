@@ -18,12 +18,12 @@ from roles import Unassigned, Follower, Leader, Pheromone
 class Environment(Model):
     """ A model which contains ants with specified roles. """
 
-    def __init__(self, N=10, g=2, size=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
+    def __init__(self, N=10, g=1, size=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
                  ratio=0.5, moore=False, grow=False):
         """
         Args:
             N (int): number of ants
-            g (int): maximum amount of ants in a following group of ants
+            g (float): the max group size of an Ant relative to N
             size(int): the size of the system (size X size)
             p_uf (float): the probability that Unassigned changes to Follower
             p_pu (float): the probability that Pheromone changes to Unassigned
@@ -56,9 +56,9 @@ class Environment(Model):
         self.schedule = RandomActivation(self)
 
         # Ant variables
-        self.g = g
         N = int(N)
         self.N = N
+        self.g = int(N * g) + 1
         role_division = {Unassigned: np.round(N//2),
                          Follower: 0,
                          Leader: int((N//2)*ratio),
