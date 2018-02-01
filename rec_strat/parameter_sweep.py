@@ -5,6 +5,7 @@ import numpy as np
 from model import Environment
 import matplotlib.pyplot as plt
 import pandas as pd
+
 from roles import Unassigned, Follower, Leader, Pheromone
 from batchrunner import BatchRunner
 
