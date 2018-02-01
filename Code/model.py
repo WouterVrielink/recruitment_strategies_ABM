@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+The Environment class implements the Environment's properties and updates.
+
+Core Objects:
+    Environment: Extends the Model class from Mesa.
+"""
 import numpy as np
 
 from mesa import Model
@@ -8,7 +15,6 @@ from mesa.datacollection import DataCollector
 from ant import Ant
 from roles import Unassigned, Follower, Leader, Pheromone
 
-
 class Environment(Model):
     """ A model which contains ants with specified roles. """
 
@@ -17,18 +23,19 @@ class Environment(Model):
                  moore=False, grow=False):
         """
         Args:
-            N: number of ants
-            g: amount of ants possible in a following group of ants
-            w: width of the system
-            h: height of the system
-            p_uf: the probability that Unassigned changes to Follower
-            p_pu: the probability that Pheromone changes to Unassigned
-            p_up: the probability that Unassigned changes to Pheromone
-            p_fl: the probability that Follower changes to Leader
-            p_lu: the probability that Leader changes to Unassigned
-            role_division: dictionary that holds number of ants assigned to specific roles
-            moore: True/False whether Moore/vonNeumann is used
-            grow: True/False whether the system grows over time or not
+            N (int): number of ants
+            g (int): maximum amount of ants in a following group of ants
+            w (int): width of the system
+            h (int): height of the system
+            p_uf (float): the probability that Unassigned changes to Follower
+            p_pu (float): the probability that Pheromone changes to Unassigned
+            p_up (float): the probability that Unassigned changes to Pheromone
+            p_fl (float): the probability that Follower changes to Leader
+            p_lu (float): the probability that Leader changes to Unassigned
+            role_division (dict): dictionary that holds number of ants assigned
+                to specific roles {Role role: int number_of_ants}
+            moore (bool): True/False whether Moore/vonNeumann is used
+            grow (bool): True/False whether the system grows over time or not
         """
         super().__init__()
 
@@ -69,8 +76,8 @@ class Environment(Model):
         Gives correct coordinates if the coordinates are out of bounds.
 
         Args:
-            x: int
-            y: int
+            x (int): current x position
+            y (int): current y position
 
         Returns:
             Tuple of (x, y) that is in ([0, width], [0, height])
@@ -82,22 +89,23 @@ class Environment(Model):
         Faster alternative to the mesa built-in grid.get_neighbourhood().
 
         Args:
-            pos: tuple of position (int: x, int: y)
-            moore: if True, uses Moore's neighborhood
+            pos (tuple): tuple of position (int x, int y)
+            moore (bool): if True, uses Moore's neighborhood
                    if False, uses Neumann's neighborhood
-            radius: decides the radius of the neighborhood (default 1)
-            include_center: if True, include the center
+            radius (int): decides the radius of the neighborhood (default 1)
+            include_center (bool): if True, include the center
                             if False, do not include the center
                             (default False)
 
         Returns:
             An iterator that gives all coordinates that are connected to pos
-            through the given neighborhood.s
+            through the given neighborhood
         """
         x, y = pos
 
         coordinates = set()
 
+        # Loop over Moore's neighborhood
         for dy in range(-radius, radius + 1):
             for dx in range(-radius, radius + 1):
                 if dx == 0 and dy == 0 and not include_center:
@@ -117,13 +125,12 @@ class Environment(Model):
                     coordinates.add(coords)
                     yield coords
 
-
     def get_random_position(self):
         """
         Gets a random position in the grid, samples from a uniform distribution.
 
         Returns:
-            Tuple position (int: x, int: y)
+            Tuple position (int x, int y)
         """
         return (np.random.randint(0, self.width), np.random.randint(0, self.height))
 
@@ -132,8 +139,8 @@ class Environment(Model):
         Adds N ants of with role role to this colony.
 
         Args:
-            N: integer value which specifies the nr of ants to add
-            role: one of {Unassigned, Follower, Leader, Pheromone}
+            N (int): integer value which specifies the nr of ants to add
+            role (Role): one of {Unassigned, Follower, Leader, Pheromone}
         """
 
         for _ in range(N):
@@ -149,24 +156,10 @@ class Environment(Model):
         Move an agent across the map.
 
         Args:
-            ant: what agent to move
-            pos: tuple (x, y) to move the agent to
+            ant (Ant): what agent to move
+            pos (tuple): (int x, int y) to move the agent to
         """
         self.grid.move_agent(ant, pos)
-
-    def get_role_probabilities(self):
-        """
-        Depricated. TODO
-        """
-
-        roles_n = [sum([1 if a.role == Unassigned else 0 for a in self.schedule.agents]),
-                           0,
-                           sum([1 if a.role == Leader else 0 for a in self.schedule.agents]),
-                           sum([1 if a.role == Pheromone else 0 for a in self.schedule.agents])]
-
-        print(roles_n)
-
-        return np.array(roles_n) / sum(roles_n)
 
     def step(self):
         """
@@ -176,13 +169,8 @@ class Environment(Model):
         self.schedule.step()
         self.dc.collect(self)
 
-        # TODO
         if self.grow and self.schedule.steps % 10:
-            role_probs = self.get_role_probabilities()
-
-            # role = np.random.choice([Unassigned, Follower, Leader, Pheromone], p=role_probs)
-
-            self.add_ants(10, Unassigned)
+            self.add_ants(1, Unassigned)
 
 
     def animate(self, ax):
@@ -190,13 +178,13 @@ class Environment(Model):
         Update the visualization part of the Ants.
 
         Args:
-            ax: axes binding of matplotlib
+            ax (Axes): axes binding of matplotlib to animate on
         """
         self.ax = ax
         self.animate_ants()
 
     def animate_ants(self):
-        """ Ask the ants do update themselfs in the animation. """
+        """ Ask the ants to update themselfs in the animation. """
         for ant in self.schedule.agents:
             ant.update_vis()
 
@@ -205,8 +193,8 @@ class Environment(Model):
         Convert the position/indices on self.grid to imshow array.
 
         Args:
-            pos: tuple (int: x, int: y)
+            pos (tuple): (int x, int y)
         Returns:
-            tuple (int: x, int: y)
+            tuple (int: x, int: y), that contains the converted position
         """
         return pos[0], self.height - pos[1] - 1
