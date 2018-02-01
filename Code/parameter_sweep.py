@@ -16,14 +16,13 @@ if __name__ == '__main__':
         'bounds': [[0, 1]] * 5 + [[0, 0.5]] + [[0, 1]] + [[10, 200]] + [[3, 20]]
     }
 
-    param_values = saltelli.sample(problem, 100)
-    param_values[:,5] = np.round(param_values[:,5])
+    param_values = saltelli.sample(problem, 10)
     param_values[:,7] = np.round(param_values[:,7])
     param_values[:,8] = np.round(param_values[:,8])
 
     param_sets = [tuple(param_values[i, :]) for i in range(len(param_values))]
     param_names = problem['names']
-    max_steps = 1000
+    max_steps = 500
     replicates = 1
 
     model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
