@@ -1,280 +1,200 @@
+# -*- coding: utf-8 -*-
+"""
+The Environment class implements the Environment's properties and updates.
+
+Core Objects:
+    Environment: Extends the Model class from Mesa.
+"""
+import numpy as np
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from colony import Colony
-from obstacle import Obstacle
-from food import FoodGrid
 from mesa.datacollection import DataCollector
-import metrics
-import numpy as np
-import random
-from scipy.ndimage import gaussian_filter
-from scipy.spatial import distance
-from ant import Ant
-from copy import copy
-from numba import jit
 
+from ant import Ant
+from roles import Unassigned, Follower, Leader, Pheromone
 
 class Environment(Model):
-    """ A model which contains a number of ant colonies. """
-    def __init__(self, width, height, n_colonies, n_ants, n_obstacles, decay=0.2, sigma=0.1, moore=False, birth=True, death=True):
+    """ A model which contains ants with specified roles. """
+
+    def __init__(self, N=100, g=2, w=10, h=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
+                 role_division={Unassigned: 10, Follower: 0, Leader: 5, Pheromone: 5},
+                 moore=False, grow=False):
         """
-        :param width: int, width of the system
-        :param height: int, height of the system
-        :param n_colonies: int, number of colonies
-        :param n_ants: int, number of ants per colony
-        :param decay: float, the rate in which the pheromone decays
-        :param sigma: float, sigma of the Gaussian convolution
-        :param moore: boolean, True/False whether Moore/vonNeumann is used
+        Args:
+            N (int): number of ants
+            g (int): maximum amount of ants in a following group of ants
+            w (int): width of the system
+            h (int): height of the system
+            p_uf (float): the probability that Unassigned changes to Follower
+            p_pu (float): the probability that Pheromone changes to Unassigned
+            p_up (float): the probability that Unassigned changes to Pheromone
+            p_fl (float): the probability that Follower changes to Leader
+            p_lu (float): the probability that Leader changes to Unassigned
+            role_division (dict): dictionary that holds number of ants assigned
+                to specific roles {Role role: int number_of_ants}
+            moore (bool): True/False whether Moore/vonNeumann is used
+            grow (bool): True/False whether the system grows over time or not
         """
         super().__init__()
 
-        # Agent variables
-        self.birth = birth
-        self.death = death
-
-        self.pheromone_level = 1
-
         # Environment variables
-        self.width = width
-        self.height = height
-        self.grid = MultiGrid(width, height, False)
-
+        self.width = w
+        self.height = h
         self.moore = moore
-
-        self.sigma = sigma
-        self.decay = decay
+        self.grow = grow
+        self.grid = MultiGrid(w, h, torus=True)
+        self.interaction_probs = {Unassigned: (-1, None),
+                                  Follower: (-1, None),
+                                  Leader: (p_uf, Follower),
+                                  Pheromone: (p_up, Pheromone),
+                                  "success": (p_fl, Leader),
+                                  "failure": (p_lu, Unassigned),
+                                  "scent_lost": (p_pu, Unassigned)}
+        self.ant_counter = 0
 
         # Environment attributes
         self.schedule = RandomActivation(self)
 
-        self.colonies = [Colony(self, i, (width // 2, height // 2), n_ants, birth=self.birth, death=self.death) for i in range(n_colonies)]
+        # Ant variables
+        self.g = g
+        self.role_division = role_division
+        self.N = np.sum(role_division)
 
-        self.pheromones = np.zeros((width, height), dtype=np.float)
-        self.pheromone_updates = []
+        for role, number in role_division.items():
+            self.add_ants(number, role)
 
-        self.food = FoodGrid(self)
-        self.food.add_food()
+        model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
+                           "followers": lambda m: sum([1 if a.role == Follower else 0 for a in m.schedule.agents]),
+                           "leaders": lambda m: sum([1 if a.role == Leader else 0 for a in m.schedule.agents]),
+                           "pheromone": lambda m: sum([1 if a.role == Pheromone else 0 for a in m.schedule.agents])}
+        self.dc = DataCollector(model_reporters=model_reporters)
 
-        self.obstacles = []
-        for _ in range(n_obstacles):
-            self.obstacles.append(Obstacle(self))
+    def get_torus_coordinates(self, x, y):
+        """
+        Gives correct coordinates if the coordinates are out of bounds.
 
-        # Metric + data collection
-        self.min_distance = distance.cityblock(self.colonies[0].pos, self.food.get_food_pos())
-        self.datacollector = DataCollector(
-            model_reporters={"Minimum path length": metrics.min_path_length,
-                             "Mean minimum path length": metrics.mean_min_path_length},
-            agent_reporters={"Agent minimum path length": lambda x: min(x.path_lengths),
-                            "Encounters": Ant.count_encounters})
+        Args:
+            x (int): current x position
+            y (int): current y position
 
-        # Animation attributes
-        self.pheromone_im = None
-        self.ax = None
+        Returns:
+            Tuple of (x, y) that is in ([0, width], [0, height])
+        """
+        return x % self.width, y % self.height
+
+    def get_torus_neighborhood(self, pos, moore, radius=1, include_center=False):
+        """
+        Faster alternative to the mesa built-in grid.get_neighbourhood().
+
+        Args:
+            pos (tuple): tuple of position (int x, int y)
+            moore (bool): if True, uses Moore's neighborhood
+                   if False, uses Neumann's neighborhood
+            radius (int): decides the radius of the neighborhood (default 1)
+            include_center (bool): if True, include the center
+                            if False, do not include the center
+                            (default False)
+
+        Returns:
+            An iterator that gives all coordinates that are connected to pos
+            through the given neighborhood
+        """
+        x, y = pos
+
+        coordinates = set()
+
+        # Loop over Moore's neighborhood
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                if dx == 0 and dy == 0 and not include_center:
+                    continue
+
+                # Skip anything outside the manhattan distance for Neumann
+                if not moore and abs(dx) + abs(dy) > radius:
+                    continue
+
+                px, py = x + dx, y + dy
+
+                px, py = self.get_torus_coordinates(px, py)
+
+                coords = (px, py)
+
+                if coords not in coordinates:
+                    coordinates.add(coords)
+                    yield coords
+
+    def get_random_position(self):
+        """
+        Gets a random position in the grid, samples from a uniform distribution.
+
+        Returns:
+            Tuple position (int x, int y)
+        """
+        return (np.random.randint(0, self.width), np.random.randint(0, self.height))
+
+    def add_ants(self, N, role):
+        """
+        Adds N ants of with role role to this colony.
+
+        Args:
+            N (int): integer value which specifies the nr of ants to add
+            role (Role): one of {Unassigned, Follower, Leader, Pheromone}
+        """
+
+        for _ in range(N):
+            a = Ant(self.ant_counter, model=self, pos=None, role=role)
+
+            self.grid.place_agent(a, a.pos)
+            self.schedule.add(a)
+
+            self.ant_counter += 1
+
+    def move_agent(self, ant, pos):
+        """
+        Move an agent across the map.
+
+        Args:
+            ant (Ant): what agent to move
+            pos (tuple): (int x, int y) to move the agent to
+        """
+        self.grid.move_agent(ant, pos)
 
     def step(self):
         """
         Do a single time-step using freeze-dry states, colonies are updated each time-step in random orders, and ants
         are updated per colony in random order.
         """
-        self.food.step()
-        self.datacollector.collect(self)
-
-        # Update all colonies
-        for col in random.sample(self.colonies, len(self.colonies)):
-            col.step()
-
         self.schedule.step()
-        self.update_pheromones()
+        self.dc.collect(self)
 
-    def move_agent(self, ant, pos):
-        """
-        Move an agent across the map.
-        :param ant: class Ant
-        :param pos: tuple (x, y)
-        """
-        if self.moore:
-            assert np.sum(np.subtract(pos, ant.pos) ** 2) in [1, 2], \
-                "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large".format(ant.pos, pos)
-        else:
-            assert np.sum(np.subtract(pos, ant.pos) ** 2) == 1, \
-                "the ant can't move from its original position {} to the new position {}, because the distance " \
-                "is too large, loc_food {}".format(ant.pos, pos, self.food.get_food_pos())
-
-        self.grid.move_agent(ant, pos)
-
-    def get_random_position(self):
-        return (np.random.randint(0, self.width), np.random.randint(0, self.height))
-
-    def position_taken(self, pos):
-        if pos in self.food.get_food_pos():
-            return True
-
-        for colony in self.colonies:
-            if colony.on_colony(pos):
-                return True
-
-        for obstacle in self.obstacles:
-            if obstacle.on_obstacle(pos):
-                return True
-
-        return False
-
-    def add_food(self):
-        """
-        Add food somewhere on the map, which is not occupied by a colony yet
-        """
-        self.food.add_food()
-
-    def place_pheromones(self, pos):
-        """
-        Add pheromone somewhere on the map
-        :param pos: tuple (x, y)
-        """
-        self.pheromone_updates.append((pos, self.pheromone_level))
-
-    def get_neighbor_pheromones(self, pos, id):
-        """
-        Get the passable neighboring positions and their respective pheromone levels for the pheromone id
-        :param pos:
-        :param id:
-        :return:
-        """
-        indices = self.grid.get_neighborhood(pos, self.moore)
-        indices = [x for x in indices if not any([isinstance(x, Obstacle) for x in self.grid[x[0]][x[1]]])]
-
-        pheromones = [self.pheromones[x, y] for x, y in indices]
-
-        return indices, pheromones
-
-    def update_pheromones(self):
-        """
-        Place the pheromones at the end of a timestep on the grid. This is necessary for freeze-dry time-steps
-        """
-        for (pos, level) in self.pheromone_updates:
-            # self.pheromones[pos] += level
-            self.pheromones[pos] += 1
-
-        self.pheromone_updates = []
-
-        # gaussian convolution using self.sigma
-        self.pheromones = gaussian_filter(self.pheromones, self.sigma) * self.decay
+        if self.grow and self.schedule.steps % 10:
+            self.add_ants(1, Unassigned)
 
 
     def animate(self, ax):
         """
+        Update the visualization part of the Ants.
 
-        :param ax:
-        :return:
+        Args:
+            ax (Axes): axes binding of matplotlib to animate on
         """
         self.ax = ax
-        self.animate_pheromones()
-        self.animate_colonies()
         self.animate_ants()
-        self.animate_food()
-        self.animate_obstacles()
-
-    def animate_pheromones(self):
-        """
-        Update the visualization part of the Pheromones.
-        :param ax:
-        """
-
-        pheromones = np.rot90(self.pheromones.astype(np.float64).reshape(self.width, self.height))
-        if not self.pheromone_im:
-            self.pheromone_im = self.ax.imshow(pheromones,
-                                               vmin=0, vmax=50,
-                                               interpolation='None', cmap="Purples")
-        else:
-            self.pheromone_im.set_array(pheromones)
-
-    def animate_colonies(self):
-        """
-        Update the visualization part of the Colonies.
-        :return:
-        """
-        for colony in self.colonies:
-            colony.update_vis()
-
-    def animate_food(self):
-        """
-        Update the visualization part of the FoodGrid.
-        :return:
-        """
-        self.food.update_vis()
 
     def animate_ants(self):
-        """
-        Update the visualization part of the Ants.
-        """
+        """ Ask the ants to update themselfs in the animation. """
         for ant in self.schedule.agents:
             ant.update_vis()
-
-    def animate_obstacles(self):
-        """
-        Update the visualization part of the Obstacles.
-        :return:
-        """
-        for obstacle in self.obstacles:
-            obstacle.update_vis()
 
     def grid_to_array(self, pos):
         """
         Convert the position/indices on self.grid to imshow array.
-        :param pos: tuple (int: x, int: y)
-        :return: tuple (float: x, float: y)
+
+        Args:
+            pos (tuple): (int x, int y)
+        Returns:
+            tuple (int: x, int: y), that contains the converted position
         """
-        return pos[0] - 0.5, self.height - pos[1] - 1.5
-
-    def pheromone_threshold(self, threshold):
-        """ Returns an array of the positions in the grid in which
-        the pheromone levels are above the given threshold"""
-        pher_above_thres = np.where(self.pheromones >= threshold)
-
-        return list(zip(pher_above_thres[0],pher_above_thres[1]))
-
-    def find_path(self, pher_above_thres):
-        """ Returns the shortest paths from all the colonies to all the food sources.
-        A path can only use the positions in the given array. Therefore, this function
-        checks whether there is a possible path for a certain pheremone level.
-        Essentially a breadth first search"""
-        space_searched = False
-        all_paths = []
-        food_sources = self.food.get_food_pos()
-
-        # Search the paths for a colony to all food sources
-        for colony in self.colonies:
-            colony_paths = []
-            pos_list = {colony.pos} # Prooning
-            possible_paths = [[colony.pos]]
-
-            # Continue expanding search area until all food sources found
-            # or until the entire space is searched
-            while food_sources != [] and not space_searched:
-                space_searched = True
-                temp = []
-
-                for path in possible_paths:
-                    for neighbor in self.grid.get_neighborhood(include_center=False, radius=1, pos=path[-1], moore=self.moore):
-                        if neighbor in food_sources:
-                            food_path = copy(path)
-                            food_path.append(neighbor)
-                            colony_paths.append(food_path)
-                            food_sources.remove(neighbor)
-
-                        # Add epanded paths to the possible paths
-                        if neighbor in pher_above_thres and neighbor not in pos_list:
-                            space_searched = False
-                            temp_path = copy(path)
-                            temp_path.append(neighbor)
-                            temp.append(temp_path)
-                            pos_list.add(neighbor)
-
-                    possible_paths.remove(path)
-
-                possible_paths += temp
-
-        all_paths.append(colony_paths)
-
-        return all_paths
+        return pos[0], self.height - pos[1] - 1

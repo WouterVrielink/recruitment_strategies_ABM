@@ -1,28 +1,33 @@
 from model import Environment
 import matplotlib.pyplot as plt
 import numpy as np
-from mesa.batchrunner import BatchRunner
-from matplotlib import animation
-import matplotlib.patches as patches
-import itertools
+import pandas as pd
+from roles import Unassigned, Follower, Leader, Pheromone
+from batchrunner import BatchRunner
+
+def plot_p_fl(df):
+    """Creates the p vs (f + l) plot"""
+
+    plt.figure()
+    plt.scatter(df['pheromone'], df['followers'] + df['leaders'])
+    plt.xlabel(r'$p$')
+    plt.ylabel(r'$f + l$')
+    plt.show()
 
 
-def compute_then_plot(env, steps):
-    raise NotImplementedError
+def plot_col(df, cols):
+    """Plots the variables in the cols array"""
 
-
-def total_encounters(env):
-    counter = 0
-
-    for agent in env.schedule.agents:
-        counter += agent.encounters
-    return counter / 2
+    plt.figure()
+    df[cols].plot()
+    plt.show()
 
 
 def plot_continuous(env, steps=1000):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-
+    ax.set_xlim([0, env.width])
+    ax.set_ylim([0, env.height])
     env.animate(ax)
     fig_num = plt.get_fignums()[0]
 
@@ -41,48 +46,27 @@ def plot_continuous(env, steps=1000):
     return True
 
 
-def compute_no_plot(env, steps):
-    for _ in range(steps):
+if __name__ == '__main__':
+    # env = Environment(p_up=0.2)
+    # plot_continuous(env, 200)
+    # data = env.dc.get_model_vars_dataframe()
+    # plot_col(data, ['unassigned', 'followers', 'leaders', 'pheromone'])
+    # replicates = 3
+    # max_steps = 500
+    # model_reporters = {"unassigned": lambda m: sum([1 if a.role == Unassigned else 0 for a in m.schedule.agents]),
+    #                    "followers": lambda m: sum([1 if a.role == Follower else 0 for a in m.schedule.agents]),
+    #                    "leaders": lambda m: sum([1 if a.role == Leader else 0 for a in m.schedule.agents]),
+    #                    "pheromone": lambda m: sum([1 if a.role == Pheromone else 0 for a in m.schedule.agents])}
+    # var_params = {"p_pu": np.arange(0, 1, 0.3), "p_uf": np.arange(0, 1, 0.3)}
+    # fixed_params = {"N": 100, "g": 10, "w": 50, "h": 50, "p_up": 0.5, "p_fl": 0.01}
+    # batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params,
+    #                         max_steps=max_steps, iterations=replicates, model_reporters=model_reporters)
+    # batch_run.run_all(1)
+
+    env = Environment(moore=False, grow=True)
+
+    for _ in range(10000):
         env.step()
 
-
-def plot_col(df, col):
-    plt.figure()
-    plt.ylim([0, np.max(df[col])])
-    plt.xlabel('iteration')
-    plt.ylabel(col)
-    df[col].plot()
-
-
-def animate_distribution(path_lengths, steps):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    for i in range(steps):
-        ax.clear()
-        t_data = path_lengths.loc[i]
-        t_data = t_data[t_data != np.inf]
-        t_data.hist(ax=ax)
-        plt.pause(0.001)
-
-
-if __name__ == '__main__':
-    width = 20
-    height = 20
-    steps = 10000
-    ant_size = 0.4
-
-    # var_params = {"n_ants": range(20, 22), 'sigma': np.arange(0, 1, 0.2)}
-    # fixed_params = {"width": width, "height": height, "n_colonies": 1,
-    #                 "n_obstacles": 0, "decay": 0.99, "moore": False}
-    # batch_run = BatchRunner(Environment, variable_parameters=var_params, fixed_parameters=fixed_params, max_steps=100,
-    #                         model_reporters={"n_agents": lambda m: m.schedule.get_agent_count()}, iterations=5)
-    # batch_run.run_all()
-    # print(batch_run.get_model_vars_dataframe())
-    env = Environment(width=width, height=height, n_colonies=1, n_ants=100, n_obstacles=0, decay=0.99, sigma=0.2,
-                      moore=False)
-    plot_continuous(env, steps)
-    # compute_then_plot(env, steps)
-    # compute_no_plot(env, steps=steps)
-    # model_data = env.datacollector.get_model_vars_dataframe()
-    # agent_min_paths = env.datacollector.get_agent_vars_dataframe()
-    # plot_col(model_data, 'Mean minimum path length')
+    # data = batch_run.get_model_vars_dataframe()
+    # plot_p_fl(data)
