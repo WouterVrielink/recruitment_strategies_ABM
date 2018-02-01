@@ -3,8 +3,9 @@
 Roles module. These objects can be used to specify roles for agents.
 
 Note:
-    When implementing new 'roles' keep in mind that 'self' is actually the Ant
+    - When implementing new 'roles' keep in mind that 'self' is actually the Ant
     agent that was passed when calling the method.
+    - With 'Pheromone' an ant is meant with a pheromone role. Not the chemical itself.
 
 Core Objects:
     Role: Base class. Raises NotImplementedError if methods are not overloaded.
