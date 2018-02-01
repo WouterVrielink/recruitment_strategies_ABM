@@ -15,7 +15,7 @@ def plot_class_param(df):
     plt.show()
 
 if __name__ == '__main__':
-    data = pd.read_csv('batchrun1000_25-01-2018.csv', sep=';')
+    data = pd.read_csv('29-01-2018.csv')
     cls = (data['unassigned'] == 110) + ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
           (((data['leaders'] == 0) & (data['followers'] == 0)) & (data['pheromone'] != 0)) * 3 + \
           ((data['leaders'] == 0) & (data['followers'] != 0)) * 4

@@ -117,7 +117,7 @@ class BatchRunner:
         return params
 
     def run_all(self, processes=8):
-        """ Run the model at all parameter combinations and store results. """
+        """ Run the model at all parameter combinations and store results_ofat1. """
         # register the process pool and init a queue
         pool = ProcessPool(nodes=processes)
         job_queue = []
@@ -168,7 +168,7 @@ class BatchRunner:
         # run the model
         self.run_model(model)
 
-        # Collect and store results:
+        # Collect and store results_ofat1:
         model_key = param_values + (run_count,)
         model_ret = None
         agent_ret = None
