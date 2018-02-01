@@ -1,6 +1,6 @@
 # An Agent-Based Model of ants' recruitment strategies compared to their colony size
 
-Codebase for the foraging strategies paper.
+Codebase for the 'An Agent-Based Model of ants' recruitment strategies compared to their colony size' paper.
 
 ## Getting Started
 
@@ -37,7 +37,7 @@ TODO
 
 ## Contributing
 
-Please read [CONTRIBUTING.md]() for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
@@ -47,11 +47,11 @@ Please read [CONTRIBUTING.md]() for details on our code of conduct, and the proc
 * **T. van der Veen** - *Initial work*
 * **W. Vrielink** - *Initial work*
 
-See also the list of [contributors]https://github.com/WouterVrielink/recruitment_strategies_ABM/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/WouterVrielink/recruitment_strategies_ABM/graphs/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](./LICENSE.md) file for details
 
 ## Acknowledgments
 
