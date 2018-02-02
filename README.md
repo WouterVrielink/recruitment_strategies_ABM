@@ -64,6 +64,17 @@ It is now possible to progress the environment (a hundred timesteps), by doing t
 for _ in range(100):
     env.step()
 ```
+To visualise steps, one can use the plot module:
+```
+from model import Environment
+from plot import plot_continuous
+
+steps = 200
+env = Environment()
+
+plot_continuous(env, steps)
+```
+
 For more examples, see [examples.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/examples.ipynb).
 
 ## Built With
