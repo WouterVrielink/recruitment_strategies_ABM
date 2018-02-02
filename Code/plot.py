@@ -1,7 +1,12 @@
-from model import Environment
+# -*- coding: utf-8 -*-
+"""
+Implements the various matplotlib plots for this project.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+from model import Environment
 from roles import Unassigned, Follower, Leader, Pheromone
 
 def plot_p_fl(df):
