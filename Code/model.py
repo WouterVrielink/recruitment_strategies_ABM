@@ -58,7 +58,7 @@ class Environment(Model):
         # Ant variables
         N = int(N)
         self.N = N
-        self.g = g
+        self.g = np.round(g * N)
         role_division = {Unassigned: np.round(N//2),
                          Follower: 0,
                          Leader: int((N//2)*ratio),

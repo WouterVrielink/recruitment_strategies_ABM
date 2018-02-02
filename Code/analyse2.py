@@ -8,8 +8,12 @@ import pandas as pd
 import numpy as np
 from SALib.analyze import sobol
 
-data = pd.read_csv('29-01-2018_5000.csv')
-cls = (data['unassigned'] == 55) + ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
+data = pd.read_csv('../Data/batchrun01-02-2018.csv')
+
+data['total'] = np.round(data['N'] // 2) + np.round((data['N'] // 2) * data['ratio']) + data['N'] - np.round(data['N'] // 2) - np.round(
+    (data['N'] // 2) * data['ratio'])
+
+cls = (data['unassigned'] == data['total']) + ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
       (((data['leaders'] == 0) & (data['followers'] == 0)) & (data['pheromone'] != 0)) * 3 + \
       ((data['leaders'] == 0) & (data['followers'] != 0)) * 4
 data['class'] = cls
@@ -18,45 +22,40 @@ data['p2'] = data['class'] == 2
 data['p3'] = data['class'] == 3
 data['p5'] = data['class'] == 0
 data['g'] = np.floor(data['g'])
-data['percentage'] = (data['followers'] + data['leaders']) / 55
+data['percentage'] = (data['followers'] + data['leaders']) / data['total']
 data['pfl_ratio'] = (data['followers'] + data['leaders']) / (data['pheromone'] + 1)
-data['pfl_net'] = (data['pheromone'] - data['followers'] - data['leaders']) / 55
-data['pu_net'] = (data['pheromone'] - data['unassigned']) / 55
-data['flu_net'] = (data['followers'] + data['leaders'] - data['unassigned']) / 55
-
-
+data['pfl_net'] = (data['pheromone'] - data['followers'] - data['leaders']) / data['total']
+data['pu_net'] = (data['pheromone'] - data['unassigned']) / data['total']
+data['flu_net'] = (data['followers'] + data['leaders'] - data['unassigned']) / data['total']
 
 # fig = plt.figure()
-# ax = fig.add_subplot(311)
-# ax.scatter(data['pfl_net'], data['pu_net'])
+# plt.scatter(data['pfl_net'], data['pu_net'])
 # plt.xlabel('p - fl')
 # plt.ylabel('p - u')
 #
-# ax.subfigure()
-# ax.scatter(data['pfl_net'], data['flu_net'])
+# fig = plt.figure()
+# plt.scatter(data['pfl_net'], data['flu_net'])
 # plt.xlabel('p - fl')
 # plt.ylabel('fl - u')
 #
-# ax.subfigure()
-# ax.scatter(data['flu_net'], data['pu_net'])
+# fig = plt.figure()
+# plt.scatter(data['flu_net'], data['pu_net'])
 # plt.xlabel('fl - u')
 # plt.ylabel('p - u')
-
+#
 # plt.figure()
 # plt.scatter(data['p_lu'], data['flu_net'])
-plt.show()
+# plt.show()
 #
-#SA
-X = data[['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g']].as_matrix()
-
-
+# SA
+X = data[['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g', 'ratio', 'N', 'size']].as_matrix()
 
 problem = {
-    'num_vars': 6,
-    'names': ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g'],
-    'bounds': [[0, 1]] * 5 + [[0, 5]]
+    'num_vars': 9,
+    'names': ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g', 'ratio', 'N', 'size'],
+    'bounds': [[0, 1]] * 5 + [[0, 0.5]] + [[0, 1]] + [[10, 200]] + [[3, 20]]
 }
-Si = sobol.analyze(problem, data['pfl_net'].as_matrix(), print_to_console=True)
+Si = sobol.analyze(problem, data['pu_net'].as_matrix(), print_to_console=True)
 
 #
 #
