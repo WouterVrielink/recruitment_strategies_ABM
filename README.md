@@ -29,8 +29,10 @@ This will install the correct versions of:
 
 ### Repository
 The following list describes the most important files in the project and where to find them:
-- **/Code**: contains all of the codebase of this project
+- **/Code**: contains all of the codebase of this project.
   - **/Code/ant.py**: contains the Ant class that implements the ant's properties and updates.
+  - **/Code/batchrunner.py**: an adapted version of the [mesa batchrunner](https://github.com/projectmesa/mesa/blob/master/mesa/batchrunner.py). Adds multiprocessing, adds the ability to specify your own parameter windows, and fixes [a bug](https://github.com/projectmesa/mesa/issues/454) where the model will immediately reach max_steps after one run of a parameter combination.
+  - **/Code/examples.ipynb**: ipynb that shows how to use the model, view the model, and create plots.
   - **/Code/model.py**: contains the Environment class that implements the Environment's properties and updates.
   - **/Code/plot.py**: contains functions that shows either animations for real-time viewing of the environment, or plots that show specific passed values.
   - **/Code/roles.py**: contains the role modules. These objects can be used to specify roles for agents.

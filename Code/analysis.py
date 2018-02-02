@@ -5,15 +5,6 @@ import matplotlib.pyplot as plt
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 
-def plot_class_param(df):
-    """Creates the p vs (f + l) plot"""
-
-    plt.figure()
-    plt.scatter(df['pheromone'], df['followers'] + df['leaders'])
-    plt.xlabel(r'$p$')
-    plt.ylabel(r'$f + l$')
-    plt.show()
-
 if __name__ == '__main__':
     data = pd.read_csv('29-01-2018.csv')
     cls = (data['unassigned'] == 110) + ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
@@ -36,4 +27,3 @@ if __name__ == '__main__':
     sobol.analyze(problem, data['p2'].as_matrix(), print_to_console=True)
     print("\n")
     Si = sobol.analyze(problem, data['p3'].as_matrix(), print_to_console=True)
-
