@@ -18,33 +18,31 @@ from roles import Unassigned, Follower, Leader, Pheromone
 class Environment(Model):
     """ A model which contains ants with specified roles. """
 
-    def __init__(self, N=100, g=2, w=10, h=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
-                 role_division={Unassigned: 10, Follower: 0, Leader: 5, Pheromone: 5},
-                 moore=False, grow=False):
+    def __init__(self, N=10, g=1, size=10, p_uf=0.5, p_pu=0.1, p_up=0.5, p_fl=0.8, p_lu=0.05,
+                 ratio=0.5, moore=False, grow=False):
         """
         Args:
             N (int): number of ants
-            g (int): maximum amount of ants in a following group of ants
-            w (int): width of the system
-            h (int): height of the system
+            g (float): the max group size of an Ant relative to N
+            size(int): the size of the system (size X size)
             p_uf (float): the probability that Unassigned changes to Follower
             p_pu (float): the probability that Pheromone changes to Unassigned
             p_up (float): the probability that Unassigned changes to Pheromone
             p_fl (float): the probability that Follower changes to Leader
             p_lu (float): the probability that Leader changes to Unassigned
-            role_division (dict): dictionary that holds number of ants assigned
-                to specific roles {Role role: int number_of_ants}
+            ratio (float): the start ratio of leaders (1 - ratio is the start nr of pheromone)
             moore (bool): True/False whether Moore/vonNeumann is used
             grow (bool): True/False whether the system grows over time or not
         """
         super().__init__()
 
         # Environment variables
-        self.width = w
-        self.height = h
+        size = int(size)
+        self.width = size
+        self.height = size
         self.moore = moore
         self.grow = grow
-        self.grid = MultiGrid(w, h, torus=True)
+        self.grid = MultiGrid(size, size, torus=True)
         self.interaction_probs = {Unassigned: (-1, None),
                                   Follower: (-1, None),
                                   Leader: (p_uf, Follower),
@@ -58,9 +56,14 @@ class Environment(Model):
         self.schedule = RandomActivation(self)
 
         # Ant variables
+        N = int(N)
+        self.N = N
         self.g = g
+        role_division = {Unassigned: np.round(N//2),
+                         Follower: 0,
+                         Leader: int((N//2)*ratio),
+                         Pheromone: N - np.round(N//2) - int((N//2)*ratio)}
         self.role_division = role_division
-        self.N = np.sum(role_division)
 
         for role, number in role_division.items():
             self.add_ants(number, role)
