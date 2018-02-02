@@ -58,7 +58,8 @@ class Environment(Model):
         # Ant variables
         N = int(N)
         self.N = N
-        self.g = np.round(g * N)
+        self.g = g
+        self.max_group_size = np.round(g * N) if np.round(g * N) >= 1 else 1
         role_division = {Unassigned: np.round(N//2),
                          Follower: 0,
                          Leader: int((N//2)*ratio),

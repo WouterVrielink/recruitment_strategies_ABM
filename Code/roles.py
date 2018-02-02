@@ -66,7 +66,7 @@ class Unassigned(Role):
 
             if np.random.random() < transition_chance:
                 # If the leader is not yet full
-                if n.role == Leader and len(n.followers) < self.model.g:
+                if n.role == Leader and len(n.followers) < self.model.max_group_size:
                     n.followers.append(self)
                     self.role = new_role
                 elif n.role == Pheromone:
