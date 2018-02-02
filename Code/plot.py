@@ -63,3 +63,22 @@ def plot_continuous(env, steps=1000):
         env.animate(ax)
         fig.canvas.draw()
     return True
+
+def plot_param_var(ax, df, param, var):
+    x = df.groupby(param).mean().reset_index()[param]
+    y = df.groupby(param).mean()[var]
+    replicates = df.groupby(param)[var].count()
+    err = (1.96 * df.groupby(param)[var].std()) / np.sqrt(replicates)
+    ax.errorbar(x, y, yerr=err.as_matrix())
+
+    ax.scatter(df[param], df[var])
+    ax.set_xlabel(param)
+    ax.set_ylabel(var)
+    ax.set_ylim([-1.1, 1.1])
+
+
+def plot_all_vars(df, param):
+    f, axs = plt.subplots(3, figsize=(7, 10))
+    plot_param_var(axs[0], df, param, 'pfl_net')
+    plot_param_var(axs[1], df, param, 'pu_net')
+    plot_param_var(axs[2], df, param, 'flu_net')
