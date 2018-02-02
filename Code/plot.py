@@ -4,10 +4,12 @@ Implements the various matplotlib plots for this project.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+from itertools import product
 import pandas as pd
 
 from model import Environment
 from roles import Unassigned, Follower, Leader, Pheromone
+
 
 def plot_p_fl(df):
     """
@@ -22,6 +24,7 @@ def plot_p_fl(df):
     plt.ylabel(r'$f + l$')
     plt.show()
 
+
 def plot_col(df, cols):
     """
     Plots the variables in the cols list.
@@ -33,6 +36,7 @@ def plot_col(df, cols):
     plt.figure()
     df[cols].plot()
     plt.show()
+
 
 def plot_continuous(env, steps=1000):
     """
@@ -64,6 +68,7 @@ def plot_continuous(env, steps=1000):
         fig.canvas.draw()
     return True
 
+
 def plot_param_var(ax, df, param, var):
     x = df.groupby(param).mean().reset_index()[param]
     y = df.groupby(param).mean()[var]
@@ -82,3 +87,16 @@ def plot_all_vars(df, param):
     plot_param_var(axs[0], df, param, 'pfl_net')
     plot_param_var(axs[1], df, param, 'pu_net')
     plot_param_var(axs[2], df, param, 'flu_net')
+
+
+def plot_index(s, params, i):
+    if i == '2':
+        params = list(product(params))
+    indices = s['S' + i]
+    errors = s['S' + i + '_conf']
+    l = len(indices)
+    plt.figure()
+    plt.ylim([-0.2, len(indices) - 1 + 0.2])
+    plt.yticks(range(l), params)
+    plt.errorbar(indices, range(l), xerr=errors, linestyle='None', marker='o')
+    plt.axvline(0, c='k')
