@@ -6,17 +6,17 @@ import pandas as pd
 import numpy as np
 
 
-params = ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g']
+params = ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'ratio', 'N', 'size']
 file_path = '../Data/batchrun01-02-2018.csv'
 
 data = pd.read_csv(file_path)
 
 # this should not be necessary
-cls = (data['unassigned'] == 55) + ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
+cls = (data['pheromone'] + data['leaders'] + data['followers'] == 0) + \
+      ((data['pheromone'] == 0) & ((data['leaders'] + data['followers']) != 0)) * 2 + \
       (((data['leaders'] == 0) & (data['followers'] == 0)) & (data['pheromone'] != 0)) * 3 + \
       ((data['leaders'] == 0) & (data['followers'] != 0)) * 4
 data['class'] = cls
-data['g'] = np.floor(data['g'])
 
 # extract relevant columns
 X = data[params].as_matrix()
@@ -67,7 +67,7 @@ print("The min and max values of each param in the selected area are:\n{}\n"
       .format(minmax))
 
 # lets check how well a meshgrid between the min and max of each parameter fits in between the selected area
-acc = 10
+acc = 4
 param_ranges = []
 for i, param in enumerate(params):
     param_ranges.append(np.linspace(mins[i],maxs[i],acc))
