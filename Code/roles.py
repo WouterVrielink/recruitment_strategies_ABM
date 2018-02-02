@@ -25,8 +25,7 @@ import numpy as np
 
 class Role:
     """ Base class for roles. Use as super to implement new roles. """
-    @property
-    def visualization_color(self):
+    def get_visualization_color():
         """ The colorstring for matplotlib goes here. """
         raise NotImplementedError
 
@@ -40,8 +39,7 @@ class Unassigned(Role):
     follower of that leader. When meeting a Pheromone, has a chance to become a
     Pheromone.
     """
-    @property
-    def visualization_color(self):
+    def get_visualization_color():
         """
         Returns:
             The colorstring 'green' for matplotlib.
@@ -76,8 +74,7 @@ class Unassigned(Role):
 
 class Follower(Role):
     """ Follows a leader. Has no special actions. """
-    @property
-    def visualization_color(self):
+    def get_visualization_color():
         """
         Returns:
             The colorstring 'red' for matplotlib.
@@ -94,8 +91,7 @@ class Leader(Role):
     have a chance to change all followers into leaders. When finding anyone
     else, has a chance to change all followers and itself into unassigned.
     """
-    @property
-    def visualization_color(self):
+    def get_visualization_color():
         """
         Returns:
             The colorstring 'blue' for matplotlib.
@@ -139,8 +135,7 @@ class Pheromone(Role):
     Pheromone only has a chance to stop being a pheromone when meeting anyone
     but another pheromone.
     """
-    @property
-    def visualization_color(self):
+    def get_visualization_color():
         """
         Returns:
             The colorstring 'cyan' for matplotlib.

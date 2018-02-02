@@ -47,8 +47,8 @@ def plot_continuous(env, steps=1000):
 
 
 if __name__ == '__main__':
-    # env = Environment(p_up=0.2)
-    # plot_continuous(env, 200)
+    env = Environment(p_up=0.2)
+    plot_continuous(env, 200)
     # data = env.dc.get_model_vars_dataframe()
     # plot_col(data, ['unassigned', 'followers', 'leaders', 'pheromone'])
     # replicates = 3
@@ -63,10 +63,10 @@ if __name__ == '__main__':
     #                         max_steps=max_steps, iterations=replicates, model_reporters=model_reporters)
     # batch_run.run_all(1)
 
-    env = Environment(moore=False, grow=True)
-
-    for _ in range(10000):
-        env.step()
+    # env = Environment(moore=False, grow=True)
+    #
+    # for _ in range(10000):
+    #     env.step()
 
     # data = batch_run.get_model_vars_dataframe()
     # plot_p_fl(data)
