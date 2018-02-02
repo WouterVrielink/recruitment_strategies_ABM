@@ -79,13 +79,14 @@ class BatchRunner:
                 collected at the level of each agent present in the model at
                 the end of the run.
             display_progress: Display progresss bar with time estimation?
-
         """
         self.model_cls = model_cls
+
         if variable_parameters:
             self.variable_parameters = self._process_parameters(variable_parameters)
         else:
             self.variable_parameters = None
+
         self.fixed_parameters = fixed_parameters or {}
         self.iterations = iterations
         self.max_steps = max_steps
@@ -108,17 +109,25 @@ class BatchRunner:
     def _process_parameters(self, params):
         params = copy.deepcopy(params)
         bad_names = []
+
         for name, values in params.items():
             if (isinstance(values, str) or
                     not hasattr(values, "__iter__")):
                 bad_names.append(name)
+
         if bad_names:
             raise VariableParameterError(bad_names)
+
         return params
 
     def run_all(self, processes=8):
-        """ Run the model at all parameter combinations and store results_ofat1. """
-        # register the process pool and init a queue
+        """
+        Run the model at all parameter combinations and store results.
+
+        Args:
+            processes (int): number of processes to start
+        """
+        # Register the process pool and init a queue
         pool = ProcessPool(nodes=processes)
         job_queue = []
 
@@ -134,14 +143,13 @@ class BatchRunner:
         with tqdm(total=total_iterations, disable=not self.display_progress) as pbar:
             for param_values in param_sets:
                 kwargs = dict(zip(param_names, param_values))
-                # print(kwargs)
                 kwargs.update(self.fixed_parameters)
 
-                # make a new process and add it to the queue
+                # Make a new process and add it to the queue
                 for i in range(self.iterations):
                     job_queue.append(pool.uimap(self.iter, (kwargs,), (param_values,), (next(run_count),)))
 
-            # empty the queue
+            # Empty the process queue
             results = []
             for task in job_queue:
                 for model_vars, agent_vars in list(task):
@@ -157,23 +165,25 @@ class BatchRunner:
                         getattr(self, "agent_vars", None)[agent_key] = reports
 
     def generate_samples(self):
+        """ Seperate the variables into their names and values. """
         param_names, param_ranges = zip(*self.variable_parameters.items())
         param_sets = product(*param_ranges)
         return param_names, param_sets
 
     def iter(self, kwargs, param_values, run_count):
-        # make a new model
+        """ Job iterator that can be called by processes to start a new job. """
+        # Make a new model
         model = self.model_cls(**kwargs)
 
-        # run the model
+        # Run the model
         self.run_model(model)
 
-        # Collect and store results_ofat1:
+        # Collect and store results
         model_key = param_values + (run_count,)
         model_ret = None
         agent_ret = None
+
         if self.model_reporters:
-            #self.model_vars[model_key] = self.collect_model_vars(model)
             model_ret = {model_key: self.collect_model_vars(model)}
         if self.agent_reporters:
             agent_vars = self.collect_agent_vars(model)
@@ -184,11 +194,11 @@ class BatchRunner:
         return (model_ret, agent_ret)
 
     def run_model(self, model):
-        """ Run a model object to completion, or until reaching max steps.
+        """
+        Run a model object to completion, or until reaching max steps.
 
         If your model runs in a non-standard way, this is the method to modify
         in your subclass.
-
         """
         while model.running and model.schedule.steps < self.max_steps:
             model.step()
@@ -211,16 +221,16 @@ class BatchRunner:
         return agent_vars
 
     def get_model_vars_dataframe(self):
-        """ Generate a pandas DataFrame from the model-level variables
+        """
+        Generate a pandas DataFrame from the model-level variables
         collected.
-
         """
         return self._prepare_report_table(self.model_vars)
 
     def get_agent_vars_dataframe(self):
-        """ Generate a pandas DataFrame from the agent-level variables
+        """
+        Generate a pandas DataFrame from the agent-level variables
         collected.
-
         """
         return self._prepare_report_table(self.agent_vars,
                                           extra_cols=['AgentId'])
