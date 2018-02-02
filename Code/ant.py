@@ -101,7 +101,7 @@ class Ant(Agent):
                                             edgecolor='k', facecolor='w', fill=True, zorder=2)
             self.model.ax.add_patch(self._patch)
 
-        self._patch.set_facecolor(self.role.visualization_color)
+        self._patch.set_facecolor(self.role.get_visualization_color())
         self._patch.set_xy(pos)
 
         return self._patch
