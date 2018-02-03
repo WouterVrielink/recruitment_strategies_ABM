@@ -27,7 +27,7 @@ def plot_p_fl(df):
     plt.show()
 
 
-def plot_col(df, cols):
+def plot_col(ax, df, cols):
     """
     Plots the variables in the cols list.
 
@@ -85,18 +85,20 @@ def plot_continuous_notebook(env, steps=1000):
         env: the environment to be shown
         steps (int): the amount of steps to animate (default 1000)
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlim([0, env.width])
-    ax.set_ylim([0, env.height])
-    env.animate(ax)
+    fig = plt.figure(figsize=(10,5))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    ax1.set_xlim([0, env.width])
+    ax1.set_ylim([0, env.height])
+    ax2.set_ylabel('number of ants')
+    env.animate(ax1)
     fig_num = plt.get_fignums()[0]
     custom_patches = [
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='g', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='r', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='b', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
-    ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left', bbox_to_anchor=(1, 0.5))
+    ax1.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center right', bbox_to_anchor=(0, 0.5))
 
     # Flush display
     display.clear_output(wait=True)
@@ -105,20 +107,23 @@ def plot_continuous_notebook(env, steps=1000):
     for i in range(steps):
         if not plt.fignum_exists(fig_num): break
 
-        plt.title('iteration: ' + str(i))
+        plt.suptitle('iteration: ' + str(i))
+        ax2.set_ylabel('number of ants')
+        ax2.set_ylim([-0.1, env.N])
         plt.pause(0.001)
 
         # Take a step
         env.step()
 
         # Store the state for animation
-        env.animate(ax)
+        env.animate(ax1)
+        env.dc.get_model_vars_dataframe()[['leaders', 'unassigned', 'followers', 'pheromone']].plot(ax=ax2, legend=None)
         fig.canvas.draw()
 
         # Flush display
         display.clear_output(wait=True)
         display.display(plt.gcf())
-
+        ax2.clear()
 
 def plot_param_var(ax, df, param, var):
     """
