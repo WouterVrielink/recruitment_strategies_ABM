@@ -1,7 +1,10 @@
 # An Agent-Based Model of ants' recruitment strategies compared to their colony size
 
 This repo holds the codebase for ['An Agent-Based Model of ants' recruitment strategies compared to their colony size' paper](TODO).
-This idea for this project was based on the paper by [Planqué et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2915909/pdf/pone.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
+The idea for this project came from the paper by [Planqué et al.](https://www.ncbi.nlm.nih
+.gov/pmc/articles/PMC2915909/pdf/pone
+.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
+This project was conducted for the course Agent-Based Modelling by Michael Lees and Debraj Roy, University of Amsterdam.
 
 While writing this codebase, contributions where made to the [Mesa](https://github.com/projectmesa/mesa) ABM framework:
 - [[Feature Implemented] Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
