@@ -40,8 +40,8 @@ def read_data(path):
 if __name__ == '__main__':
 
     params = ['p_uf', 'p_pu', 'p_up', 'p_fl', 'p_lu', 'g', 'ratio', 'N', 'size']
-    prefix = '../Data/ofat_full/ofat_2_2_2_'
+    prefix = '../Data/ofat_full2/ofat_3_2_4_'
     for param in params:
         data = read_data(prefix + param + '.csv')
         plot_all_vars(data, param)
-    plt.show()
+        plt.savefig('../Results/ofat_var_p_lu/0.11/' + param + '.png')

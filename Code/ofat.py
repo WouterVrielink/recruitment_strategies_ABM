@@ -9,7 +9,9 @@ from batchrunner import BatchRunner
 from copy import copy
 from model import Environment
 
-default_params = [0.8, 0.22, 0.68, 0.52, 0.7, 0.1, 0.56, 105, 12]
+default_params = [5.60426548e-01, 4.86656242e-01, 5.23613688e-01, 5.44587569e-01,
+                  2.50770030e-01, 2.74353174e-01, 5.17588437e-01, 100,
+                  1.14958368e+01]
 ranges = [np.linspace(0, 1), np.linspace(0, 1), np.linspace(0, 1),
           np.linspace(0, 1), np.linspace(0, 1), np.linspace(0, 0.5),
           np.linspace(0, 1), range(10, 200, 10), range(3, 20)]
@@ -30,8 +32,8 @@ for i in range(len(param_names)):
         param_values.append(tuple(param_set))
 
     batch = BatchRunner(Environment, param_sets=param_values, param_names=param_names, max_steps=max_steps,
-                    iterations=replicates, model_reporters=model_reporters)
+                        iterations=replicates, model_reporters=model_reporters)
     batch.run_all(4)
     data = batch.get_model_vars_dataframe()
-    data.to_csv('../Data/ofat_full/ofat_2_2_2_' + param_names[i] + '.csv')
+    data.to_csv('../Data/ofat_full2/ofat_3_2_1_' + param_names[i] + '.csv')
     param_values = []
