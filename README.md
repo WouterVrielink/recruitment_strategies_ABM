@@ -69,13 +69,15 @@ To visualise steps, one can use the plot module:
 from model import Environment
 from plot import plot_continuous
 
-steps = 200
+steps = 100
 env = Environment()
 
 plot_continuous(env, steps)
 ```
 
-For more examples, see [examples.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/examples.ipynb).
+For an interactive version of this example, see [example.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/examples.ipynb).
+
+For examples on how to do [Linear Discriminant Analysis (LDA)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/lda.ipynb), [Sobel](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/sobol.ipynb), and [One Factor At the Time (OFAT)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/ofat.ipynb), take a look at the respective ipython notebooks.
 
 ## Built With
 

@@ -62,7 +62,7 @@ def plot_continuous(env, steps=1000):
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
     ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left', bbox_to_anchor=(1, 0.5))
     for i in range(steps):
-        if not plt.fignum_exists(fig_num): return False
+        if not plt.fignum_exists(fig_num): break
 
         plt.title('iteration: ' + str(i))
         plt.pause(0.001)
@@ -73,7 +73,7 @@ def plot_continuous(env, steps=1000):
         # Store the state for animation
         env.animate(ax)
         fig.canvas.draw()
-    return True
+
 
 
 def plot_continuous_notebook(env, steps=1000):
@@ -98,12 +98,13 @@ def plot_continuous_notebook(env, steps=1000):
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
     ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left', bbox_to_anchor=(1, 0.5))
 
+    display.clear_output(wait=True)
+    display.display(plt.gcf())
+
     for i in range(steps):
-        if not plt.fignum_exists(fig_num): return False
+        if not plt.fignum_exists(fig_num): break
 
         plt.title('iteration: ' + str(i))
-        display.clear_output(wait=True)
-        display.display(plt.gcf())
         plt.pause(0.001)
 
         # Take a step
@@ -112,7 +113,10 @@ def plot_continuous_notebook(env, steps=1000):
         # Store the state for animation
         env.animate(ax)
         fig.canvas.draw()
-    return True
+
+        # Flush display
+        display.clear_output(wait=True)
+        display.display(plt.gcf())
 
 
 def plot_param_var(ax, df, param, var):
@@ -135,13 +139,14 @@ def plot_all_vars(df, param):
     plot_param_var(axs[2], df, param, 'flu_net')
 
 
-def plot_index(s, params, i):
+def plot_index(s, params, i, title=''):
     if i == '2':
         params = list(product(params))
     indices = s['S' + i]
     errors = s['S' + i + '_conf']
     l = len(indices)
     plt.figure()
+    plt.title(title)
     plt.ylim([-0.2, len(indices) - 1 + 0.2])
     plt.yticks(range(l), params)
     plt.errorbar(indices, range(l), xerr=errors, linestyle='None', marker='o')
