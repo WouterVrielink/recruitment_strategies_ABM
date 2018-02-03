@@ -75,11 +75,11 @@ def plot_continuous(env, steps=1000):
         fig.canvas.draw()
 
 
-
 def plot_continuous_notebook(env, steps=1000):
     """
     Shows the passed environment over time. Terminates gracefully when closing
-    the animation window.
+    the animation window. Notebook version, meaning that it clears the display
+    before showing the next animation frame.
 
     Args:
         env: the environment to be shown
@@ -98,6 +98,7 @@ def plot_continuous_notebook(env, steps=1000):
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
     ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left', bbox_to_anchor=(1, 0.5))
 
+    # Flush display
     display.clear_output(wait=True)
     display.display(plt.gcf())
 
@@ -120,6 +121,16 @@ def plot_continuous_notebook(env, steps=1000):
 
 
 def plot_param_var(ax, df, param, var):
+    """
+    Helper function for plot_all_vars. Plots the individual parameter vs
+    variables passed.
+
+    Args:
+        ax: the axis to plot to
+        df: dataframe that holds the data to be plotted
+        param: parametersto be taken from the dataframe
+        var: which output variable to plot
+    """
     x = df.groupby(param).mean().reset_index()[param]
     y = df.groupby(param).mean()[var]
     replicates = df.groupby(param)[var].count()
@@ -133,6 +144,14 @@ def plot_param_var(ax, df, param, var):
 
 
 def plot_all_vars(df, param):
+    """
+    Plots the parameters passed vs each of the output variables.
+
+    Args:
+        df: dataframe that holds all data
+        param: the parameter to be plotted
+    """
+
     f, axs = plt.subplots(3, figsize=(7, 10))
     plot_param_var(axs[0], df, param, 'pfl_net')
     plot_param_var(axs[1], df, param, 'pu_net')
@@ -140,8 +159,21 @@ def plot_all_vars(df, param):
 
 
 def plot_index(s, params, i, title=''):
+    """
+    Creates a plot for Sobol sensitivity analysis that shows the contributions
+    of each parameter to the global sensitivity.
+
+    Args:
+        s (dict): dictionary {'S#': dict, 'S#_conf': dict} of dicts that hold
+            the values for a set of parameters
+        params (list): the parameters taken from s
+        i (str): string that indicates what order the sensitivity is.
+        title (str): title for the plot
+    """
+
     if i == '2':
         params = list(product(params))
+
     indices = s['S' + i]
     errors = s['S' + i + '_conf']
     l = len(indices)
