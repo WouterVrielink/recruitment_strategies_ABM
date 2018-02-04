@@ -173,7 +173,7 @@ class Environment(Model):
         self.schedule.step()
         self.dc.collect(self)
 
-        if self.grow and self.schedule.steps % 10:
+        if self.grow:
             self.add_ants(1, Unassigned)
             self.N += 1
 
