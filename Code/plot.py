@@ -60,7 +60,8 @@ def plot_continuous(env, steps=1000):
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='r', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='b', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
-    ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left', bbox_to_anchor=(1, 0.5))
+    ax.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center left',
+              bbox_to_anchor=(1, 0.5))
     for i in range(steps):
         if not plt.fignum_exists(fig_num): break
 
@@ -85,7 +86,7 @@ def plot_continuous_notebook(env, steps=1000):
         env: the environment to be shown
         steps (int): the amount of steps to animate (default 1000)
     """
-    fig = plt.figure(figsize=(10,5))
+    fig = plt.figure(figsize=(10, 5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
     ax1.set_xlim([0, env.width])
@@ -98,7 +99,8 @@ def plot_continuous_notebook(env, steps=1000):
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='r', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='b', fill=True, zorder=2),
         patches.Rectangle((0, 0), 0.4, 0.4, linewidth=2, edgecolor='k', facecolor='c', fill=True, zorder=2)]
-    ax1.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center right', bbox_to_anchor=(0, 0.5))
+    ax1.legend(custom_patches, ['Unassigned', 'Follower', 'Leader', 'Pheromoner'], loc='center right',
+               bbox_to_anchor=(0, 0.5))
 
     # Flush display
     display.clear_output(wait=True)
@@ -117,13 +119,16 @@ def plot_continuous_notebook(env, steps=1000):
 
         # Store the state for animation
         env.animate(ax1)
-        env.dc.get_model_vars_dataframe()[['leaders', 'unassigned', 'followers', 'pheromone']].plot(ax=ax2, legend=None)
+        env.dc.get_model_vars_dataframe()[['leaders', 'unassigned', 'followers', 'pheromone']].plot(ax=ax2, legend=None,
+                                                                                    color=['b', 'g', 'r', 'c'])
+
         fig.canvas.draw()
 
         # Flush display
         display.clear_output(wait=True)
         display.display(plt.gcf())
         ax2.clear()
+
 
 def plot_param_var(ax, df, param, var):
     """

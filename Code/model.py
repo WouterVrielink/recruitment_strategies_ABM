@@ -175,6 +175,7 @@ class Environment(Model):
 
         if self.grow and self.schedule.steps % 10:
             self.add_ants(1, Unassigned)
+            self.N += 1
 
 
     def animate(self, ax):
