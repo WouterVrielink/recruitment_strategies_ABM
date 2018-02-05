@@ -4,7 +4,7 @@ Implements the various matplotlib plots for this project.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from itertools import product
+from itertools import combinations
 import pandas as pd
 from IPython import display
 import matplotlib.patches as patches
@@ -120,7 +120,8 @@ def plot_continuous_notebook(env, steps=1000):
         # Store the state for animation
         env.animate(ax1)
         env.dc.get_model_vars_dataframe()[['leaders', 'unassigned', 'followers', 'pheromone']].plot(ax=ax2, legend=None,
-                                                                                    color=['b', 'g', 'r', 'c'])
+                                                                                                    color=['b', 'g',
+                                                                                                           'r', 'c'])
 
         fig.canvas.draw()
 
@@ -205,12 +206,20 @@ def plot_index(s, params, i, title=''):
     """
 
     if i == '2':
-        params = list(product(params))
+        p = len(params)
+        params = list(combinations(params, 2))
+        indices = s['S' + i].reshape((p ** 2))
+        indices = indices[~np.isnan(indices)]
+        errors = s['S' + i + '_conf'].reshape((p ** 2))
+        errors = errors[~np.isnan(errors)]
+        plt.figure(figsize=(10,6))
+    else:
+        indices = s['S' + i]
+        errors = s['S' + i + '_conf']
+        plt.figure()
 
-    indices = s['S' + i]
-    errors = s['S' + i + '_conf']
     l = len(indices)
-    plt.figure()
+
     plt.title(title)
     plt.ylim([-0.2, len(indices) - 1 + 0.2])
     plt.yticks(range(l), params)
