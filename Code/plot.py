@@ -4,7 +4,7 @@ Implements the various matplotlib plots for this project.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from itertools import product
+from itertools import combinations
 import pandas as pd
 from IPython import display
 import matplotlib.patches as patches
@@ -120,7 +120,8 @@ def plot_continuous_notebook(env, steps=1000):
         # Store the state for animation
         env.animate(ax1)
         env.dc.get_model_vars_dataframe()[['leaders', 'unassigned', 'followers', 'pheromone']].plot(ax=ax2, legend=None,
-                                                                                    color=['b', 'g', 'r', 'c'])
+                                                                                                    color=['b', 'g',
+                                                                                                           'r', 'c'])
 
         fig.canvas.draw()
 
@@ -153,7 +154,7 @@ def plot_param_var(ax, df, param, var):
     ax.set_ylim([-1.1, 1.1])
 
 
-def plot_param_var_conf(ax, df, param, var, label=None, alpha=1):
+def plot_param_var_conf(ax, df, param, var, label='_nolegend_', alpha=1, line_to_legend=False):
     """
     Helper function for plot_all_vars. Plots the individual parameter vs
     variables passed.
@@ -168,7 +169,7 @@ def plot_param_var_conf(ax, df, param, var, label=None, alpha=1):
     y = df.groupby(param).mean()[var]
     replicates = df.groupby(param)[var].count()
     err = (1.96 * df.groupby(param)[var].std()) / np.sqrt(replicates)
-    ax.plot(x, y, c='k')
+    ax.plot(x, y, c='k', label='_nolegend_')
     ax.fill_between(x, y - err, y + err, label=label, alpha=alpha)
 
     ax.set_xlabel(param)
@@ -205,12 +206,20 @@ def plot_index(s, params, i, title=''):
     """
 
     if i == '2':
-        params = list(product(params))
+        p = len(params)
+        params = list(combinations(params, 2))
+        indices = s['S' + i].reshape((p ** 2))
+        indices = indices[~np.isnan(indices)]
+        errors = s['S' + i + '_conf'].reshape((p ** 2))
+        errors = errors[~np.isnan(errors)]
+        plt.figure(figsize=(10,6))
+    else:
+        indices = s['S' + i]
+        errors = s['S' + i + '_conf']
+        plt.figure()
 
-    indices = s['S' + i]
-    errors = s['S' + i + '_conf']
     l = len(indices)
-    plt.figure()
+
     plt.title(title)
     plt.ylim([-0.2, len(indices) - 1 + 0.2])
     plt.yticks(range(l), params)
