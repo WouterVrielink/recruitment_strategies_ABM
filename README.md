@@ -10,6 +10,8 @@ While writing this codebase, contributions where made to the [Mesa](https://gith
 - [[Feature Implemented] Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
 - [[Bugfix] iter_neighborhood() now gives correct neighborhoods for both von Neumann and Moore](https://github.com/projectmesa/mesa/pull/459)
 
+While working on this project, [another project](https://github.com/WouterVrielink/MC-ACO) was made that focusses more on how pheromone trails develop over time.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -45,7 +47,8 @@ The following list describes the most important files in the project and where t
 
 The /Code folder also includes some iPython notebooks that explain the code and show how to perform analysis methods
  on the data that is generated:
-- **/Code/examples.ipynb**: notebook that shows how to use the model, view the model, and create plots.
+- **/Code/examples.ipynb**: shows how to use the model, view the model, and create plots.
+- **/Code/growing_population.ipynb**: shows how to increase the number of ants while the model is running.
 - **/Code/lda.ipynb**: shows how to perform LDA.
 - **/Code/ofat.ipynb**: shows how to perform One Factor At a Time (OFAT) analysis.
 - **/Code/sobol.ipynb**: shows how to perform a Sobol sensitivity analysis.
