@@ -63,7 +63,7 @@ This creates an environment with all the default values. The values that can be 
 - N (int): number of ants
 - g (float): the max group size of an Ant relative to N
 - size(int): the size of the system (size * size)
-- $p_{uf}$ (float): the probability that Unassigned changes to Follower
+- p_uf (float): the probability that Unassigned changes to Follower
 - p_pu (float): the probability that Pheromone changes to Unassigned
 - p_up (float): the probability that Unassigned changes to Pheromone
 - p_fl (float): the probability that Follower changes to Leader
@@ -88,10 +88,12 @@ env = Environment()
 plot_continuous(env, steps)
 ```
 
-For an interactive version of this example, see [example.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/examples.ipynb).
+For an interactive version of this example, see [example.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/example.ipynb).
 
 For examples on how to do [Linear Discriminant Analysis (LDA)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/lda.ipynb), [Sobel](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/sobol.ipynb), and [One Factor At the
-Time (OFAT)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/ofat.ipynb), take a look at the respective ipython notebooks.
+Time (OFAT)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/ofat.ipynb), take a look at
+the respective iPython notebooks.
+Lastly, check out the additional notebook investigating [colony size growth](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/growing_population.ipynb).
 
 ## Built With
 
