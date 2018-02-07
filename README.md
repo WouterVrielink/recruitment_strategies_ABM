@@ -1,8 +1,7 @@
 # An Agent-Based Model of ants' recruitment strategies compared to their colony size
 
 This repo holds the codebase for ['An Agent-Based Model of ants' recruitment strategies compared to their colony size' paper](TODO).
-The idea for this project came from the paper by [Planqué et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2915909/pdf/pone
-.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
+The idea for this project came from the paper by [Planque et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2915909/pdf/pone.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
 This project was conducted for the course Agent-Based Modelling by Michael Lees and Debraj Roy, University of Amsterdam.
 
 While writing this codebase, contributions where made to the [Mesa](https://github.com/projectmesa/mesa) ABM framework:
@@ -90,7 +89,8 @@ plot_continuous(env, steps)
 
 For an interactive version of this example, see [example.ipynb](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/examples.ipynb).
 
-For examples on how to do [Linear Discriminant Analysis (LDA)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/lda.ipynb), [Sobel](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/sobol.ipynb), and [One Factor At the Time (OFAT)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/ofat.ipynb), take a look at the respective ipython notebooks.
+For examples on how to do [Linear Discriminant Analysis (LDA)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/lda.ipynb), [Sobel](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/sobol.ipynb), and [One Factor At the
+Time (OFAT)](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Code/ofat.ipynb), take a look at the respective ipython notebooks.
 
 ## Built With
 
