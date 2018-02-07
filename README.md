@@ -1,6 +1,6 @@
 # An Agent-Based Model of ants' recruitment strategies compared to their colony size
 
-This repo holds the codebase for 'An Agent-Based Model of ants' recruitment strategies compared to their colony size' [paper](TODO).
+This repo holds the codebase for 'An Agent-Based Model of ants' recruitment strategies compared to their colony size' [paper](https://github.com/WouterVrielink/recruitment_strategies_ABM/blob/master/Report/Report_ABM_Project.pdf).
 The idea for this project came from the paper by [Planqué et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2915909/pdf/pone.0011664.pdf) on Recruitment Strategies and Colony Size in Ants.
 This project was conducted for the course Agent-Based Modelling by Michael Lees and Debraj Roy, University of Amsterdam.
 
