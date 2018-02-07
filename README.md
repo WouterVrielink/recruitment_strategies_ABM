@@ -8,8 +8,7 @@ While writing this codebase, contributions where made to the [Mesa](https://gith
 - [[Feature Implemented] Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
 - [[Bugfix] iter_neighborhood() now gives correct neighborhoods for both von Neumann and Moore](https://github.com/projectmesa/mesa/pull/459)
 
-Also, take a look at our [other ABM project](https://github
-.com/WouterVrielink/MC-ACO) on food recruitment with ants, which focuses on how pheromone trails develop over time.
+Also, take a look at our [other ABM project](https://github.com/WouterVrielink/MC-ACO) on food recruitment with ants, which focuses on how pheromone trails develop over time.
 
 ## Getting Started
 
