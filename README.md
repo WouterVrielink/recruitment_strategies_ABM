@@ -8,7 +8,8 @@ While writing this codebase, contributions where made to the [Mesa](https://gith
 - [[Feature Implemented] Multiprocessing BatchRunner](https://github.com/projectmesa/mesa/pull/456)
 - [[Bugfix] iter_neighborhood() now gives correct neighborhoods for both von Neumann and Moore](https://github.com/projectmesa/mesa/pull/459)
 
-While working on this project, [another project](https://github.com/WouterVrielink/MC-ACO) was made that focusses more on how pheromone trails develop over time.
+Also, take a look at our [other ABM project](https://github
+.com/WouterVrielink/MC-ACO) on food recruitment with ants, which focuses on how pheromone trails develop over time.
 
 ## Getting Started
 
@@ -62,7 +63,7 @@ This creates an environment with all the default values. The values that can be 
 - N (int): number of ants
 - g (float): the max group size of an Ant relative to N
 - size(int): the size of the system (size * size)
-- p_uf (float): the probability that Unassigned changes to Follower
+- $p_{uf}$ (float): the probability that Unassigned changes to Follower
 - p_pu (float): the probability that Pheromone changes to Unassigned
 - p_up (float): the probability that Unassigned changes to Pheromone
 - p_fl (float): the probability that Follower changes to Leader
